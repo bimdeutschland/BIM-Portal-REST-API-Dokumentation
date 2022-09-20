@@ -1,6 +1,5 @@
 # BIM-Portal-REST-API-Dokumentation
-![Swagger Build](https://github.com/bimdeutschland/BIM-Portal-REST-API-Dokumentation
-Public/workflows/pages-build-deployment/main.yml/badge.svg)
+![Swagger Build](https://github.com/bimdeutschland/BIM-Portal-REST-API-Dokumentation/workflows/pages-build-deployment/main.yml/badge.svg)
 
 Dokumentation der BIM-Portal REST API zum Abrufen qualitätsgesicherter, öffentlicher Merkmale
 
