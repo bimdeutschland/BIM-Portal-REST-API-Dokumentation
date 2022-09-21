@@ -1,4 +1,4 @@
-# BIM-Portal-REST-API-Dokumentation
+# BIM-Portal REST-API-Dokumentation
 [![pages-build-deployment](https://github.com/bimdeutschland/BIM-Portal-REST-API-Dokumentation/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/bimdeutschland/BIM-Portal-REST-API-Dokumentation/actions/workflows/pages/pages-build-deployment)
 
 Dokumentation der BIM-Portal REST API zum Abrufen qualitätsgesicherter, öffentlicher Merkmale
