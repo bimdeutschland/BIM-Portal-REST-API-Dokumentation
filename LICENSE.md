@@ -1,4 +1,5 @@
 DL-DE->Zero-2.0  
+
 Datenlizenz Deutschland – Zero – Version 2.0  
 Jede Nutzung ist ohne Einschränkungen oder Bedingungen zulässig.  
 
