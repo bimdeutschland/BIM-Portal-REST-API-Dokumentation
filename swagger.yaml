@@ -1310,28 +1310,29 @@ paths:
         - Merkmale
       summary: Merkmalsgruppen
       description: Liefert alle Merkmalsgruppen, die zu den Suchparametern passen
-      parameters:
-        - in: body
-          description: Die Suchparameter
-          schema:
-            type: object
-            properties:
-              organisationGuids:
-                type: array
-                items:
+      requestBody:
+        description: Die Suchparameter
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                organisationGuids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                searchString:
                   type: string
-                  format: uuid
-              searchString:
-                type: string
-              filterGuids:
-                type: array
-                items:
-                  type: string
-                  format: uuid
-              includeDeprecated:
-                type: boolean
-              pageNumber:
-                type: integer
+                filterGuids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                includeDeprecated:
+                  type: boolean
+                pageNumber:
+                  type: integer
       responses:
         '200':    # status code
           description: Ein JSON-Array der gefundenen Merkmalsgruppen
@@ -1378,28 +1379,29 @@ paths:
         - Merkmale
       summary: Merkmale
       description: Liefert alle Merkmale, die zu den Suchparametern passen
-      parameters:
-        - in: body
-          description: Die Suchparameter
-          schema:
-            type: object
-            properties:
-              organisationGuids:
-                type: array
-                items:
+      requestBody:
+        description: Die Suchparameter
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                organisationGuids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                searchString:
                   type: string
-                  format: uuid
-              searchString:
-                type: string
-              filterGuids:
-                type: array
-                items:
-                  type: string
-                  format: uuid
-              includeDeprecated:
-                type: boolean
-              pageNumber:
-                type: integer
+                filterGuids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                includeDeprecated:
+                  type: boolean
+                pageNumber:
+                  type: integer
       responses:
         '200':    # status code
           description: Ein JSON-Array der gefundenen Merkmale
