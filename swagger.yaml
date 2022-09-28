@@ -32,8 +32,42 @@ paths:
                     - type: string
                       example: "Beschreibung"
                     - type: string
+                      format: uuid
                       example: "GUID"
                     - type: string
+                      format: uuid
                       example: "GUID Elternorganisation"
                     - type: boolean
                       example: true
+  /merkmale/api/v1/public/filter:
+    get:
+      tags:
+        - Merkmale
+      summary: Liste aller globalen Merkmalsfiltergruppen
+      description: Generiert eine Liste aller globalen Merkmalsfiltergruppen, mit folgenden Attributen pro Eintrag:<br><ul><li>Name</li><li>GUID</li><li>Liste der Filter</li><ul><li>Name</li><li>GUID</li></ul></ul>
+      responses:
+        '200':    # status code
+          description: Ein JSON-Array mit allen Organisationen
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  oneOf:
+                    - type: string
+                      example: "Name"
+                    - type: string
+                      format: uuid
+                      example: "GUID"
+                    - type: array
+                      items: 
+                        type: object
+                        properties:
+                          name:
+                            type: string
+                          guid:
+                            type: string
+                            format: uuid
+                        example:
+                          name: "Name"
+                          guid: "GUID"
