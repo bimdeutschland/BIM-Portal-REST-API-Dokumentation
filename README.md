@@ -4,4 +4,7 @@
 
 Dokumentation der BIM-Portal REST-API zum Abrufen qualitätsgesicherter, öffentlicher Merkmale
 
-[REST API Dokumentation](https://bimdeutschland.github.io/BIM-Portal-REST-API-Dokumentation/)
+[REST API Dokumentation](https://bimdeutschland.github.io/BIM-Portal-REST-API-Dokumentation/)  
+
+Datenlizenz Deutschland – Zero – Version 2.0  
+[DL-DE->Zero-2.0](./LICENSE.md)
