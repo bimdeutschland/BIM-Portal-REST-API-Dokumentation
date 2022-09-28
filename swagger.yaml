@@ -1,24 +1,39 @@
 openapi: 3.0.0
 info:
-  title: Sample API
-  description: Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
-  version: 0.1.9
+  title: BIM-Portal REST-API für öffentliche Merkmale
+  description: Dies ist die Dokumentation der öffentlichen REST-Endpunkte, die ohne vorherige Authentifizierung von externen Clients aufgerufen werden können. Die Endpünkte können auf dieser Seite getestet werden.
+  version: 0.0.1
 servers:
-  - url: http://api.example.com/v1
-    description: Optional server description, e.g. Main (production) server
-  - url: http://staging-api.example.com
-    description: Optional server description, e.g. Internal staging server for testing
+  - url: https://planen-bauen-bim-depl-dev05.test-server.ag/bim
+    description: Main (production) server
+  - url: https://planen-bauen-bim-depl-dev05.test-server.ag/bim
+    description: Internal staging server for testing
+tags:
+  - name: Organisationen
+  - name: Merkmale
 paths:
-  /users:
+  /infrastruktur/api/v1/public/organisation:
     get:
-      summary: Returns a list of users.
-      description: Optional extended description in CommonMark or HTML.
+      tags:
+        - Organisationen
+      summary: Liste aller Organisationen
+      description: Generiert eine Liste aller Organisationen, mit folgenden Attributen pro Eintrag:<br><ul><li>Name</li><li>Beschreibung</li><li>GUID</li><li>GUID Elternorganisation</li><li>Boolean, ob es sich bei dieser Organisation um die Pflegestelle des Bund bzw. um eine Kindorganisation handelt.</li></ul>
       responses:
         '200':    # status code
-          description: A JSON array of user names
+          description: Ein JSON-Array mit allen Organisationen
           content:
             application/json:
               schema: 
                 type: array
-                items: 
-                  type: string
+                items:
+                  oneOf:
+                    - type: string
+                      example: "Name der Organisation"
+                    - type: string
+                      example: "Beschreibung"
+                    - type: string
+                      example: "GUID"
+                    - type: string
+                      example: "GUID Elternorganisation"
+                    - type: boolean
+                      example: true
