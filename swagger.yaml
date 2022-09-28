@@ -9,7 +9,7 @@ servers:
   - url: https://planen-bauen-bim-depl-dev05.test-server.ag/bim
     description: Internal staging server for testing
 tags:
-  - name: Organisationen
+  - name: Organisation
   - name: Merkmale
 paths:
   /infrastruktur/api/v1/public/organisation:
@@ -28,17 +28,19 @@ paths:
                 items:
                   oneOf:
                     - type: string
-                      example: "Name der Organisation"
+                      example: "string"
                     - type: string
-                      example: "Beschreibung"
-                    - type: string
-                      format: uuid
-                      example: "GUID"
+                      example: "string"
                     - type: string
                       format: uuid
-                      example: "GUID Elternorganisation"
+                      example: "ee6a7af7-650d-499b-8e32-58a52ffdb7bc"
+                    - type: string
+                      format: uuid
+                      example: "f0fb039e-e734-4353-8779-f8cba19e9485"
                     - type: boolean
                       example: true
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
   /merkmale/api/v1/public/filter:
     get:
       tags:
@@ -53,13 +55,17 @@ paths:
               schema: 
                 type: array
                 items:
-                  oneOf:
-                    - type: string
-                      example: "Name"
-                    - type: string
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "string"
+                    guid:
+                      type: string
                       format: uuid
-                      example: "GUID"
-                    - type: array
+                      example: "ee6a7af7-650d-499b-8e32-58a52ffdb7bc"
+                    filter:
+                      type: array
                       items: 
                         type: object
                         properties:
@@ -69,5 +75,1368 @@ paths:
                             type: string
                             format: uuid
                         example:
-                          name: "Name"
-                          guid: "GUID"
+                          name: "string"
+                          guid: "ee6a7af7-650d-499b-8e32-58a52ffdb7bc"
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  /merkmale/api/v1/public/propertygroup/{guid}:
+    get:
+      tags:
+        - Merkmale
+      summary: Merkmalsgruppe
+      description: Liefert die Merkmalsgruppe mit der gesuchten GUID
+      parameters:
+        - in: path
+          name: guid
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: GUID der Merkmalsgruppe
+      responses:
+        '200':    # status code
+          description: Ein JSON-Objekt der gesuchten Merkmalsgruppe
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  guid:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                  propertyStatus:
+                    type: string
+                  dateOfCreation:
+                    type: string
+                  dateOfActivation:
+                    type: string
+                  dateOfLastChange:
+                    type: string
+                  dateOfRevision:
+                    type: string
+                  dateOfVersion:
+                    type: string
+                  dateOfDeactivation:
+                    type: string
+                  versionNumber:
+                    type: integer
+                  revisionNumber:
+                    type: integer
+                  replaces:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        namesInLanguage:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              language:
+                                type: string
+                              languageName:
+                                type: string
+                              countryName:
+                                type: string
+                        versionNumber:
+                          type: integer
+                        revisionNumber:
+                          type: integer
+                        propertyStatus:
+                          type: string
+                  replacedBy:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        namesInLanguage:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              language:
+                                type: string
+                              languageName:
+                                type: string
+                              countryName:
+                                type: string
+                        versionNumber:
+                          type: integer
+                        revisionNumber:
+                          type: integer
+                        propertyStatus:
+                          type: string
+                  deprecationExplanation:
+                    type: string
+                  relationOfThePropertyGroupIdentifiersInTheInterconnectedDictionaries:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      version:
+                        type: integer
+                      createdDate:
+                        type: string
+                      propGroupID:
+                        type: string
+                      interConDictID:
+                        type: string
+                  creatorsLanguage:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      language:
+                        type: string
+                      country:
+                        type: string
+                  namesInLanguage:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        language:
+                          type: string
+                        languageName:
+                          type: string
+                        countryName:
+                          type: string
+                  definitionsInLanguage:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        definition:
+                          type: string
+                        language:
+                          type: string
+                  visualRepresentations:
+                    type: array
+                    items:
+                      type: string
+                  countryOfUse:
+                    type: array
+                    items:
+                      type: string
+                  subdivisionOfUse:
+                    type: array
+                    items:
+                      type: string
+                  countryOfOrigin:
+                    type: string
+                  categoryOfGroupOfProperties:
+                    type: string
+                  properties:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        guid:
+                          type: string
+                          format: uuid
+                        status:
+                          type: string
+                        propertyStatus:
+                          type: string
+                        dateOfCreation:
+                          type: string
+                        dateOfActivation:
+                          type: string
+                        dateOfLastChange:
+                          type: string
+                        dateOfRevision:
+                          type: string
+                        dateOfVersion:
+                          type: string
+                        dateOfDeactivation:
+                          type: string
+                        versionNumber:
+                          type: integer
+                        revisionNumber:
+                          type: integer
+                        replaces:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              namesInLanguage:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                    language:
+                                      type: string
+                                    languageName:
+                                      type: string
+                                    countryName:
+                                      type: string
+                              versionNumber:
+                                type: integer
+                              revisionNumber:
+                                type: integer
+                              propertyStatus:
+                                type: string
+                        replacedBy:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              namesInLanguage:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                    language:
+                                      type: string
+                                    languageName:
+                                      type: string
+                                    countryName:
+                                      type: string
+                              versionNumber:
+                                type: integer
+                              revisionNumber:
+                                type: integer
+                              propertyStatus:
+                                type: string
+                        deprecationExplanation:
+                          type: string
+                        relationOfThePropertyIdentifiersInTheInterconnectedDictionaries:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                              version:
+                                type: integer
+                              createdDate:
+                                type: string
+                              propertyID:
+                                type: string
+                              interConDictID:
+                                type: string
+                        creatorsLanguage:
+                          type: object
+                          properties:
+                            code:
+                              type: string
+                            language:
+                              type: string
+                            country:
+                              type: string
+                        namesInLanguage:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              language:
+                                type: string
+                              languageName:
+                                type: string
+                              countryName:
+                                type: string
+                        definitionsInLanguage:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              definition:
+                                type: string
+                              language:
+                                type: string
+                        descriptionsInLanguage:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              descriptionn:
+                                type: string
+                              language:
+                                type: string
+                              languageName:
+                                type: string
+                              countryName:
+                                type: string
+                        examplesInLanguage:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              example:
+                                type: string
+                              language:
+                                type: string
+                              languageName:
+                                type: string
+                              countryName:
+                                type: string
+                        connectedProperties:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              namesInLanguage:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                    language:
+                                      type: string
+                                    languageName:
+                                      type: string
+                                    countryName:
+                                      type: string
+                              versionNumber:
+                                type: integer
+                              revisionNumber:
+                                type: integer
+                              propertyStatus:
+                                type: string
+                        groupOfProperties:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              namesInLanguage:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                    language:
+                                      type: string
+                                    languageName:
+                                      type: string
+                                    countryName:
+                                      type: string
+                              versionNumber:
+                                type: integer
+                              revisionNumber:
+                                type: integer
+                              propertyStatus:
+                                type: string
+                              containsProperty:
+                                type: boolean
+                              guid:
+                                type: string
+                                format: uuid
+                        symbolsOfThePropertyInAGivenPropertyGroup:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              symbol:
+                                type: string
+                              propGroupID:
+                                type: string
+                                format: uuid
+                              groupNames:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                    language:
+                                      type: string
+                                    languageName:
+                                      type: string
+                                    countryName:
+                                      type: string
+                        visualRepresentations:
+                          type: array
+                          items:
+                            type: string
+                        countryOfUse:
+                          type: array
+                          items:
+                            type: string
+                        subdivisionOfUse:
+                          type: array
+                          items:
+                            type: string
+                        countryOfOrigin:
+                          type: string
+                        physicalQuantity:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              version:
+                                type: integer
+                              creationDate:
+                                type: string
+                              siUnit:
+                                type: string
+                              language:
+                                type: string
+                        dimension:
+                          type: string
+                        methodOfMeasurement:
+                          type: string
+                        dataType:
+                          type: string
+                        dynamicProperty:
+                          type: string
+                        parametersOfTheDynamicProperty:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              namesInLanguage:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    name:
+                                      type: string
+                                    language:
+                                      type: string
+                                    languageName:
+                                      type: string
+                                    countryName:
+                                      type: string
+                              versionNumber:
+                                type: integer
+                              revisionNumber:
+                                type: integer
+                              propertyStatus:
+                                type: string
+                        units:
+                          type: array
+                          items:
+                            type: string
+                        namesOfTheDefiningValues:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              version:
+                                type: integer
+                              createdDate:
+                                type: string
+                              name:
+                                type: string
+                              language:
+                                type: string
+                              value:
+                                type: string
+                        definingValues:
+                          type: array
+                          items:
+                            type: string
+                        tolerance:
+                          type: array
+                          items:
+                            type: integer
+                        digitalFormat:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              version:
+                                type: integer
+                              createdDate:
+                                type: string
+                              precision:
+                                type: string
+                              unitOfMeasure:
+                                type: string
+                        textFormat:
+                          type: object
+                          properties:
+                            encoding:
+                              type: string
+                            numberOfCharacters:
+                              type: string
+                        listOfPossibleValuesInLanguage:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              version:
+                                type: integer
+                              createdDate:
+                                type: string
+                              possibleValue:
+                                type: string
+                              language:
+                                type: string
+                              value:
+                                type: string
+                        boundaryValues:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              version:
+                                type: integer
+                              createdDate:
+                                type: string
+                              boundaryValuePairs:
+                                type: array
+                                items:
+                                  type: string
+                              unit:
+                                type: string
+                        metadata:
+                          type: object
+                          properties:
+                            status:
+                              type: string
+                            visibility:
+                              type: string
+                            external:
+                              type: boolean
+                            organisationId:
+                              type: string
+                              format: uuid
+                            transferred:
+                              type: boolean
+                        bookmarked:
+                          type: object
+                          properties:
+                            bookmarkId:
+                              type: string
+                              format: uuid
+                        observed:
+                          type: object
+                          properties:
+                            observationId:
+                              type: string
+                              format: uuid
+                        organisationId:
+                          type: string
+                          format: uuid
+                        organisationName:
+                          type: string
+                        tags:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              tag:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                    format: uuid
+                                  name:
+                                    type: string
+                                  organisationId:
+                                    type: string
+                                    format: uuid
+                                  global:
+                                    type: boolean
+                                  assignmentCount:
+                                    type: integer
+                              organisationId:
+                                type: string
+                                format: uuid
+                        organisationType:
+                          type: string
+                        canCreateNewVersion:
+                          type: boolean
+                  childrenPropertyGroups:
+                    type: array
+                    items:
+                      type: object
+                  parentGroup:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      namesInLanguage:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                            language:
+                              type: string
+                            languageName:
+                              type: string
+                            countryName:
+                              type: string
+                      versionNumber:
+                        type: integer
+                      revisionNumber:
+                        type: integer
+                      propertyStatus:
+                        type: string
+                      containsProperty:
+                        type: boolean
+                      guid:
+                        type: string
+                        format: uuid
+                  metadata:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                      visibility:
+                        type: string
+                      external:
+                        type: boolean
+                      organisationId:
+                        type: string
+                        format: uuid
+                      transferred:
+                        type: boolean
+                  bookmarked:
+                    type: object
+                    properties:
+                      bookmarkId:
+                        type: string
+                        format: uuid
+                  observed:
+                    type: object
+                    properties:
+                      observationId:
+                        type: string
+                        format: uuid
+                  simpleInheritedProperties:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        names:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: string
+                                format: uuid
+                              version:
+                                type: integer
+                              createdDate:
+                                type: string
+                              name:
+                                type: string
+                              language:
+                                type: string
+                              value:
+                                type: string
+                        versionNumber:
+                          type: integer
+                        revisionNumber:
+                          type: integer
+                        propertyStatus:
+                          type: string
+                  organisationId:
+                    type: string
+                    format: uuid
+                  organisationName:
+                    type: string
+                    format: uuid
+                  tags:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tag:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            organisationId:
+                              type: string
+                              format: uuid
+                            global:
+                              type: boolean
+                            assignmentCount:
+                              type: integer
+                        organisationId:
+                          type: string
+                          format: uuid
+                  organisationType:
+                    type: string
+                  canCreateNewVersion:
+                    type: boolean
+        '403':
+          description: Es besteht kein Recht, diese Merkmalsgruppe zu sehen
+        '404':
+          description: Es existiert keine Merkmalsgruppe mit der GUID
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  /merkmale/api/v1/public/property/{guid}:
+    get:
+      tags:
+        - Merkmale
+      summary: Merkmal
+      description: Liefert das Merkmal mit der gesuchten GUID
+      parameters:
+        - in: path
+          name: guid
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: GUID des Merkmals
+      responses:
+        '200':    # status code
+          description: Ein JSON-Objekt des gesuchten Merkmals
+          content:
+            application/json:
+              schema: 
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  guid:
+                    type: string
+                    format: uuid
+                  status:
+                    type: string
+                  propertyStatus:
+                    type: string
+                  dateOfCreation:
+                    type: string
+                  dateOfActivation:
+                    type: string
+                  dateOfLastChange:
+                    type: string
+                  dateOfRevision:
+                    type: string
+                  dateOfVersion:
+                    type: string
+                  dateOfDeactivation:
+                    type: string
+                  versionNumber:
+                    type: integer
+                  revisionNumber:
+                    type: integer
+                  replaces:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        namesInLanguage:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              language:
+                                type: string
+                              languageName:
+                                type: string
+                              countryName:
+                                type: string
+                        versionNumber:
+                          type: integer
+                        revisionNumber:
+                          type: integer
+                        propertyStatus:
+                          type: string
+                  replacedBy:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        namesInLanguage:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              language:
+                                type: string
+                              languageName:
+                                type: string
+                              countryName:
+                                type: string
+                        versionNumber:
+                          type: integer
+                        revisionNumber:
+                          type: integer
+                        propertyStatus:
+                          type: string
+                  deprecationExplanation:
+                    type: string
+                  relationOfThePropertyIdentifiersInTheInterconnectedDictionaries:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        version:
+                          type: integer
+                        createdDate:
+                          type: string
+                        propertyID:
+                          type: string
+                        interConDictID:
+                          type: string
+                  creatorsLanguage:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                      language:
+                        type: string
+                      country:
+                        type: string
+                  namesInLanguage:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        language:
+                          type: string
+                        languageName:
+                          type: string
+                        countryName:
+                          type: string
+                  definitionsInLanguage:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        definition:
+                          type: string
+                        language:
+                          type: string
+                  descriptionsInLanguage:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        descriptionn:
+                          type: string
+                        language:
+                          type: string
+                        languageName:
+                          type: string
+                        countryName:
+                          type: string
+                  examplesInLanguage:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        example:
+                          type: string
+                        language:
+                          type: string
+                        languageName:
+                          type: string
+                        countryName:
+                          type: string
+                  connectedProperties:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        namesInLanguage:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              language:
+                                type: string
+                              languageName:
+                                type: string
+                              countryName:
+                                type: string
+                        versionNumber:
+                          type: integer
+                        revisionNumber:
+                          type: integer
+                        propertyStatus:
+                          type: string
+                  groupOfProperties:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        namesInLanguage:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              language:
+                                type: string
+                              languageName:
+                                type: string
+                              countryName:
+                                type: string
+                        versionNumber:
+                          type: integer
+                        revisionNumber:
+                          type: integer
+                        propertyStatus:
+                          type: string
+                        containsProperty:
+                          type: boolean
+                        guid:
+                          type: string
+                          format: uuid
+                  symbolsOfThePropertyInAGivenPropertyGroup:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        symbol:
+                          type: string
+                        propGroupID:
+                          type: string
+                          format: uuid
+                        groupNames:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              language:
+                                type: string
+                              languageName:
+                                type: string
+                              countryName:
+                                type: string
+                  visualRepresentations:
+                    type: array
+                    items:
+                      type: string
+                  countryOfUse:
+                    type: array
+                    items:
+                      type: string
+                  subdivisionOfUse:
+                    type: array
+                    items:
+                      type: string
+                  countryOfOrigin:
+                    type: string
+                  physicalQuantity:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        version:
+                          type: integer
+                        creationDate:
+                          type: string
+                        siUnit:
+                          type: string
+                        language:
+                          type: string
+                  dimension:
+                    type: string
+                  methodOfMeasurement:
+                    type: string
+                  dataType:
+                    type: string
+                  dynamicProperty:
+                    type: string
+                  parametersOfTheDynamicProperty:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        namesInLanguage:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              name:
+                                type: string
+                              language:
+                                type: string
+                              languageName:
+                                type: string
+                              countryName:
+                                type: string
+                        versionNumber:
+                          type: integer
+                        revisionNumber:
+                          type: integer
+                        propertyStatus:
+                          type: string
+                  units:
+                    type: array
+                    items:
+                      type: string
+                  namesOfTheDefiningValues:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        version:
+                          type: integer
+                        createdDate:
+                          type: string
+                        name:
+                          type: string
+                        language:
+                          type: string
+                        value:
+                          type: string
+                  definingValues:
+                    type: array
+                    items:
+                      type: string
+                  tolerance:
+                    type: array
+                    items:
+                      type: integer
+                  digitalFormat:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        version:
+                          type: integer
+                        createdDate:
+                          type: string
+                        precision:
+                          type: string
+                        unitOfMeasure:
+                          type: string
+                  textFormat:
+                    type: object
+                    properties:
+                      encoding:
+                        type: string
+                      numberOfCharacters:
+                        type: string
+                  listOfPossibleValuesInLanguage:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        version:
+                          type: integer
+                        createdDate:
+                          type: string
+                        possibleValue:
+                          type: string
+                        language:
+                          type: string
+                        value:
+                          type: string
+                  boundaryValues:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        version:
+                          type: integer
+                        createdDate:
+                          type: string
+                        boundaryValuePairs:
+                          type: array
+                          items:
+                            type: string
+                        unit:
+                          type: string
+                  metadata:
+                    type: object
+                    properties:
+                      status:
+                        type: string
+                      visibility:
+                        type: string
+                      external:
+                        type: boolean
+                      organisationId:
+                        type: string
+                        format: uuid
+                      transferred:
+                        type: boolean
+                  bookmarked:
+                    type: object
+                    properties:
+                      bookmarkId:
+                        type: string
+                        format: uuid
+                  observed:
+                    type: object
+                    properties:
+                      observationId:
+                        type: string
+                        format: uuid
+                  organisationId:
+                    type: string
+                    format: uuid
+                  organisationName:
+                    type: string
+                  tags:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        tag:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            name:
+                              type: string
+                            organisationId:
+                              type: string
+                              format: uuid
+                            global:
+                              type: boolean
+                            assignmentCount:
+                              type: integer
+                        organisationId:
+                          type: string
+                          format: uuid
+                  organisationType:
+                    type: string
+                  canCreateNewVersion:
+                    type: boolean
+        '403':
+          description: Es besteht kein Recht, dieses Merkmal zu sehen
+        '404':
+          description: Es existiert kein Merkmal mit der GUID
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  /merkmale/api/v1/public/propertygroup:
+    post:
+      tags:
+        - Merkmale
+      summary: Merkmalsgruppen
+      description: Liefert alle Merkmalsgruppen, die zu den Suchparametern passen
+      parameters:
+        - in: body
+          description: Die Suchparameter
+          schema:
+            type: object
+            properties:
+              organisationGuids:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+              searchString:
+                type: string
+              filterGuids:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+              includeDeprecated:
+                type: boolean
+              pageNumber:
+                type: integer
+      responses:
+        '200':    # status code
+          description: Ein JSON-Array der gefundenen Merkmalsgruppen
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    definition:
+                      type: string
+                    guid:
+                      type: string
+                      format: uuid
+                    versionNumber:
+                      type: integer
+                    revisionNumber:
+                      type: integer
+                    parentGuids:
+                      type: array
+                      items:
+                        type: string
+                        format: uuid
+                    organisationName:
+                      type: string
+                    dataType:
+                      type: string
+                    units:
+                      type: array
+                      items:
+                        type: string
+                    category:
+                      type: string
+                    deprecated:
+                      type: boolean
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  /merkmale/api/v1/public/property:
+    post:
+      tags:
+        - Merkmale
+      summary: Merkmale
+      description: Liefert alle Merkmale, die zu den Suchparametern passen
+      parameters:
+        - in: body
+          description: Die Suchparameter
+          schema:
+            type: object
+            properties:
+              organisationGuids:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+              searchString:
+                type: string
+              filterGuids:
+                type: array
+                items:
+                  type: string
+                  format: uuid
+              includeDeprecated:
+                type: boolean
+              pageNumber:
+                type: integer
+      responses:
+        '200':    # status code
+          description: Ein JSON-Array der gefundenen Merkmale
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    definition:
+                      type: string
+                    guid:
+                      type: string
+                      format: uuid
+                    versionNumber:
+                      type: integer
+                    revisionNumber:
+                      type: integer
+                    parentGuids:
+                      type: array
+                      items:
+                        type: string
+                        format: uuid
+                    organisationName:
+                      type: string
+                    dataType:
+                      type: string
+                    units:
+                      type: array
+                      items:
+                        type: string
+                    category:
+                      type: string
+                    deprecated:
+                      type: boolean
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
