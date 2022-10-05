@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: BIM-Portal REST-API für öffentliche Merkmale
-  description: Dies ist die Dokumentation der öffentlichen REST-Endpunkte, die ohne vorherige Authentifizierung von externen Clients aufgerufen werden können. Die Endpünkte können auf dieser Seite getestet werden.
+  description: Dies ist die Dokumentation der öffentlichen REST-Endpunkte, die ohne vorherige Authentifizierung von externen Clients aufgerufen werden können. Die Endpunkte können auf dieser Seite getestet werden.
   version: 0.0.1
 servers:
   - url: https://planen-bauen-bim-depl-dev05.test-server.ag/bim
