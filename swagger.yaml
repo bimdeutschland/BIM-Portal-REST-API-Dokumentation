@@ -4,10 +4,8 @@ info:
   description: Dies ist die Dokumentation der öffentlichen REST-Endpunkte, die ohne vorherige Authentifizierung von externen Clients aufgerufen werden können. Die Endpunkte können auf dieser Seite getestet werden.
   version: 0.0.1
 servers:
-  - url: https://planen-bauen-bim-depl-dev05.test-server.ag/bim
+  - url: https://bimportal.bimdeutschland.de
     description: Main (production) server
-  - url: https://planen-bauen-bim-depl-dev05.test-server.ag/bim
-    description: Internal staging server for testing
 paths:
   /infrastruktur/api/v1/public/organisation:
     get:
