@@ -12,72 +12,62 @@ paths:
       tags:
         - Organisationen
       summary: Liste aller Organisationen
-      description: Generiert eine Liste aller Organisationen, mit folgenden Attributen pro Eintrag:<br><ul><li>Name</li><li>Beschreibung</li><li>GUID</li><li>GUID Elternorganisation</li><li>Boolean, ob es sich bei dieser Organisation um die Pflegestelle des Bund bzw. um eine Kindorganisation handelt.</li></ul>
+      description: Diese Anfrage generiert eine Liste aller Organisationen, deren Informationen über die REST-API abgerufen werden können. Hierfür ist eine Freischaltung der Organisationen für den öffentlichen Zugriff per REST-API im Portal notwendig.
       responses:
         '200':    # status code
-          description: Ein JSON-Array mit allen Organisationen
+          description: Der Response Body dieser Anfrage liefert ein Json-Array mit Organisationsobjekten. Eine detaillierte Dokumentation der Organisationsobjekte ist dem unten stehenden Organisationsschema zu entnehmen.
           content:
             application/json:
               schema: 
                 type: array
                 items:
-                  oneOf:
-                    - type: string
-                      example: "string"
-                    - type: string
-                      example: "string"
-                    - type: string
-                      format: uuid
-                      example: "ee6a7af7-650d-499b-8e32-58a52ffdb7bc"
-                    - type: string
-                      format: uuid
-                      example: "f0fb039e-e734-4353-8779-f8cba19e9485"
-                    - type: boolean
-                      example: true
+                  $ref: '#/components/schemas/Organisation'
         '429':
           description: Zu viele gleichzeitige Serveranfragen
   /merkmale/api/v1/public/filter:
     get:
       tags:
-        - Merkmale
+        - Filter
       summary: Liste aller globalen Merkmalsfiltergruppen
-      description: Generiert eine Liste aller globalen Merkmalsfiltergruppen, mit folgenden Attributen pro Eintrag:<br><ul><li>Name</li><li>GUID</li><li>Liste der Filter</li><ul><li>Name</li><li>GUID</li></ul></ul>
+      description: Diese Anfrage generiert eine Liste aller globalen Merkmalsfiltergruppen.
       responses:
         '200':    # status code
-          description: Ein JSON-Array mit allen Organisationen
+          description: Der Response Body dieser Anfrage liefert ein Json-Array mit Merkmalsfiltergruppen. Jedes Merkmalsfiltergruppenobjekt enthält eine Liste einzelner Filter.  Eine detaillierte Dokumentation der Merkmalsfiltergruppen und der Filter ist den unten stehenden Schemata zu entnehmen.
           content:
             application/json:
               schema: 
                 type: array
                 items:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                      example: "string"
-                    guid:
-                      type: string
-                      format: uuid
-                      example: "ee6a7af7-650d-499b-8e32-58a52ffdb7bc"
-                    filter:
-                      type: array
-                      items: 
-                        type: object
-                        properties:
-                          name:
-                            type: string
-                          guid:
-                            type: string
-                            format: uuid
-                        example:
-                          name: "string"
-                          guid: "ee6a7af7-650d-499b-8e32-58a52ffdb7bc"
+                  $ref: '#/components/schemas/Merkmalsfiltergruppe'
         '429':
           description: Zu viele gleichzeitige Serveranfragen
+  /merkmale/api/v1/public/propertygroup:
+    post:
+      tags:
+        - Merkmalsgruppen
+      summary: Liste aller öffentlich sichtbaren Merkmalsgruppen, welche die übermittelten Filterkriterien erfüllen
+      description: Liefert alle Merkmalsgruppen, die zu den Suchparametern passen
+      requestBody:
+        description: Im Request Body dieser Anfrage werden die gewünschten Suchfilterkriterien angeben. Eine detaillierte Dokumentation der Suchfilter ist dem unten stehenden Suchfilterschema zu entnehmen.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Suchfilter'
+      responses:
+        '200':    # status code
+          description: Der Response Body dieser Anfrage liefert ein Json-Array mit den Kurzinformationen der öffentlich sichtbaren Merkmalsgruppen zurück, welche die übermittelten Suchfilterkriterien erfüllen. Die Ergebnisse sind aufsteigend nach Namen sortiert. Eine detaillierte Dokumentation der Kurzinformationsobjekte ist dem unten stehenden Kurzinformationsschema zu entnehmen.
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/Kurzinformation'
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen        
   /merkmale/api/v1/public/propertygroup/{guid}:
     get:
       tags:
-        - Merkmale
+        - Merkmalsgruppen
       summary: Merkmalsgruppe
       description: Liefert die Merkmalsgruppe mit der gesuchten GUID
       parameters:
@@ -823,6 +813,29 @@ paths:
           description: Es existiert keine Merkmalsgruppe mit der GUID
         '429':
           description: Zu viele gleichzeitige Serveranfragen
+  /merkmale/api/v1/public/property:
+    post:
+      tags:
+        - Merkmale
+      summary: Merkmale
+      description: Liste aller öffentlich sichtbaren Merkmale, welche die übermittelten Filterkriterien erfüllen
+      requestBody:
+        description: Im Request Body dieser Anfrage werden die gewünschten Suchfilterkriterien angeben. Eine detaillierte Dokumentation der Suchfilter ist dem unten stehenden Suchfilterschema zu entnehmen.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Suchfilter'  
+      responses:
+        '200':    # status code
+          description: Der Response Body dieser Anfrage liefert ein Json-Array mit den Kurzinformationen der öffentlich sichtbaren Merkmale zurück, welche die übermittelten Suchfilterkriterien erfüllen. Die Ergebnisse sind aufsteigend nach Namen sortiert. Eine detaillierte Dokumentation der Kurzinformationsobjekte ist dem unten stehenden Kurzinformationsschema zu entnehmen.
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:
+                  $ref: '#/components/schemas/Kurzinformation'
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
   /merkmale/api/v1/public/property/{guid}:
     get:
       tags:
@@ -1299,142 +1312,130 @@ paths:
           description: Es existiert kein Merkmal mit der GUID
         '429':
           description: Zu viele gleichzeitige Serveranfragen
-  /merkmale/api/v1/public/propertygroup:
-    post:
-      tags:
-        - Merkmale
-      summary: Merkmalsgruppen
-      description: Liefert alle Merkmalsgruppen, die zu den Suchparametern passen
-      requestBody:
-        description: Die Suchparameter
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                organisationGuids:
-                  type: array
-                  items:
-                    type: string
-                    format: uuid
-                searchString:
-                  type: string
-                filterGuids:
-                  type: array
-                  items:
-                    type: string
-                    format: uuid
-                includeDeprecated:
-                  type: boolean
-                pageNumber:
-                  type: integer
-      responses:
-        '200':    # status code
-          description: Ein JSON-Array der gefundenen Merkmalsgruppen
-          content:
-            application/json:
-              schema: 
-                type: array
-                items:
-                  type: object
-                  properties:
-                    name:
-                      type: string
-                    definition:
-                      type: string
-                    guid:
-                      type: string
-                      format: uuid
-                    versionNumber:
-                      type: integer
-                    revisionNumber:
-                      type: integer
-                    parentGuids:
-                      type: array
-                      items:
-                        type: string
-                        format: uuid
-                    organisationName:
-                      type: string
-                    dataType:
-                      type: string
-                    units:
-                      type: array
-                      items:
-                        type: string
-                    category:
-                      type: string
-                    deprecated:
-                      type: boolean
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-  /merkmale/api/v1/public/property:
-    post:
-      tags:
-        - Merkmale
-      summary: Merkmale
-      description: Liefert alle Merkmale, die zu den Suchparametern passen
-      requestBody:
-        description: Die Suchparameter
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                organisationGuids:
-                  type: array
-                  items:
-                    type: string
-                    format: uuid
-                searchString:
-                  type: string
-                filterGuids:
-                  type: array
-                  items:
-                    type: string
-                    format: uuid
-                includeDeprecated:
-                  type: boolean
-                pageNumber:
-                  type: integer
-      responses:
-        '200':    # status code
-          description: Ein JSON-Array der gefundenen Merkmale
-          content:
-            application/json:
-              schema: 
-                type: array
-                items:
-                  type: object
-                  properties:
-                    name:
-                      description: Name des Merkmals
-                      type: string
-                    definition:
-                      type: string
-                    guid:
-                      type: string
-                      format: uuid
-                    versionNumber:
-                      type: integer
-                    revisionNumber:
-                      type: integer
-                    parentGuids:
-                      type: array
-                      items:
-                        type: string
-                        format: uuid
-                    organisationName:
-                      type: string
-                    dataType:
-                      type: string
-                    units:
-                      type: array
-                      items:
-                        type: string
-                    category:
-                      type: string
-                    deprecated:
-                      type: boolean
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
+components:
+  schemas:
+    Organisation:
+      type: object
+      properties:
+        name:
+          description: Name der Organisation
+          example: "Pflegestelle Bund"
+          type: string
+        description:
+          description: Beschreibung der Organisation
+          example: "Organisation für die Koordinierungsstelle Bund"
+          type: string
+        guid:
+          description: Global einzigartige Identifikationsnummer der Organisation
+          example: "ee6a7af7-650d-499b-8e32-58a52ffdb7bc"
+          type: string
+        parentGuid:
+          description: Global einzigartige Identifikationsnummer der Elternorganisation des Organisationsobjekts
+          example: "1f1426b8-099e-46cb-b668-6d931bf29d8c"
+          type: string
+        bundOrganisationOrChild:
+          description: Ein Wahrheitswert der angibt, ob es sich bei dieser Organisation um die Pflegestelle Bund oder um eine Kindorganisation der pflegestelle handelt.
+          example: true
+          type: boolean
+    Merkmalsfiltergruppe:
+      type: object
+      properties:
+        name:
+          description: Name der Merkmalsfiltergruppe
+          example: "Leistungsphasen"
+        guid:
+          description: Global einzigartige Identifikationsnummer der Merkmalsfiltergruppe
+          example: "8e9b9ed6-9704-461b-97af-05e3d61a97f2"
+          type: string
+        filter:
+          type: array
+          items:
+            $ref: '#/components/schemas/Filter'
+    Filter:
+      type: object
+      properties:
+        name:
+          description: Name des Filters
+          example: "Lph 1"
+          type: string
+        guid:
+          description: Global einzigartige Identifikationsnummer des Filters
+          example: "bf0fa540-4448-45de-9c49-52a0795fef85"
+          type: string
+    Suchfilter:
+      type: object
+      properties:
+        organisationGuids:
+          description: Diese Liste ermöglicht es, GUIDs von Organisationen als Suchkriterium zu übergeben. Die zurückgelierten Ergebnisse einer Anfrage enthalten dann nur öffentlich sichtbaren Merkmalsgruppen/Merkmale aus den angegebenen Organisationen.
+          type: array
+          items:
+            description: Global einzigartige Identifikationsnummer einer konkreten Organisation
+            example: "e636c407-80f1-4e44-9989-38ebe3b64459"
+            type: string
+            format: uuid
+        searchString:
+          description: Alle öffentlich verfügabren Merkmalsgruppen/Merkmale werden, nach dem angegeben Schlagwort durchsucht. 
+          example: "Betonfestigkeit"
+          type: string
+        filterGuids:
+          description: Diese Liste ermöglicht es, GUIDs von Filtern als Suchkriterium zu übergeben. Die zurückgelierten Ergebnisse einer Anfrage enthalten dann nur öffentlich sichtbaren Merkmalsgruppen/Merkmale, die den angegebenen Filtern untergeordnet sind. 
+          type: array
+          items:
+            description: Global einzigartige Identifikationsnummer eines konkreten Filters
+            example: "1e119173-0fa6-4909-8ab7-7fab4f51da94"
+            type: string
+            format: uuid
+        parentGuid:
+          description: Dieser Filterparameter schränkt ein, welchem Elemente das angefragte Informationselement untergeordnet ist.
+          example: "1f24c5a5-4fb9-44be-8393-7f44b03eb0e4"
+          type: string
+        includeDeprecated:
+          description: Ein Wahrheitswert, der angibt, ob bei der Suche nach öffentlich sichtbaren Merkmalsgruppen auch veraltete Objekte Merkmalsgruppen/Merkmale zurückgeliefert werden sollen
+          example: true
+          type: boolean
+        pageNumber:
+          description: Mit diesem Parameter kann übermittelt werden, welche Seite der Paginierung der Suchergebnisse zurückgegeben wird. Per Default wird der Wert 0 übergeben
+          example: 0
+          type: integer
+    Kurzinformation:
+      type: object
+      properties:
+        name:
+          description: Name des Informationslements
+          type: string
+        definition:
+          description: Defintion des Informationslements
+          type: string
+        guid:
+          description: Global einzigartige Identifikationsnummer des Informationslements
+          type: string
+          format: uuid
+        versionNumber:
+          description: Versionsnummer des Informationslements
+          type: integer
+        revisionNumber:
+          description: Revisionsnummer des Informationslements.
+          type: integer
+        parentGuids:
+          description: Liste der Elterngruppe(n) des Informationslements. Im Falle eines Merkmals kann dise Liste mehrere Elemente enthalten. Im Fall einer Merkmalsgruppe enthält diese Liste maximal ein Element.
+          type: array
+          items:
+            type: string
+            format: uuid
+        organisationName:
+          description: Name der Organisation zu dem das Informationslements gehört
+          type: string
+        dataType:
+          description: Datentyp des Merkmals. Im Falle einer Merkmalsgruppe ist dieser Wert leer. 
+          type: string
+        units:
+          description: Einheit(en) des Merkmals. Im Falle einer Merkmalsgruppe ist dieser Wert leer. 
+          type: array
+          items:
+            type: string
+        category:
+          description: Kategorie der Merkmalsgruppe. Im Falle eines Merkmals ist dieser Wert leer.
+          type: string
+        deprecated:
+          description:  Ein Wahrheitswert der angibt, ob das zurückgelieferte Informationselement veraltet ist oder nicht.
+          type: boolean    
