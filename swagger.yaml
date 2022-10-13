@@ -1408,6 +1408,7 @@ paths:
                   type: object
                   properties:
                     name:
+                      description: Name des Merkmals
                       type: string
                     definition:
                       type: string
