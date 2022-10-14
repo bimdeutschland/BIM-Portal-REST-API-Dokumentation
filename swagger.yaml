@@ -80,7 +80,7 @@ paths:
           description: GUID der gesuchten Merkmalsgruppe
       responses:
         '200':    # status code
-          description: Ein JSON-Objekt der gesuchten Merkmalsgruppe
+          description: Der Response Body dieser Anfrage liefert ein Json-Object mit der angefragten Merkmalsgruppe zurück. Eine detaillierte Dokumentation des Merkmalsgruppenobjekts ist dem unten stehenden Merkmalsgruppenschema zu entnehmen.
           content:
             application/json:
               schema: 
@@ -130,7 +130,7 @@ paths:
           description: GUID der gesuchten Merkmalsgruppe
       responses:
         '200':    # status code
-          description: Ein JSON-Objekt des gesuchten Merkmals
+          description: Der Response Body dieser Anfrage liefert ein Json-Object mit dem angefragten Merkmale zurück. Eine detaillierte Dokumentation des Merkmalsobjekts ist dem unten stehenden Merkmalsschema zu entnehmen.
           content:
             application/json:
               schema: 
