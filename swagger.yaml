@@ -45,8 +45,8 @@ paths:
     post:
       tags:
         - Merkmalsgruppen
-      summary: Liste aller öffentlich sichtbaren Merkmalsgruppen, welche die übermittelten Filterkriterien erfüllen
-      description: Liefert alle Merkmalsgruppen, die zu den Suchparametern passen
+      summary: Liste von Merkmalsgruppen
+      description: Liste aller öffentlich sichtbaren Merkmalsgruppen, welche die übermittelten Filterkriterien erfüllen
       requestBody:
         description: Im Request Body dieser Anfrage werden die gewünschten Suchfilterkriterien angeben. Eine detaillierte Dokumentation der Suchfilter ist dem unten stehenden Suchfilterschema zu entnehmen.
         content:
@@ -69,7 +69,7 @@ paths:
       tags:
         - Merkmalsgruppen
       summary: Merkmalsgruppe
-      description: Liefert die Merkmalsgruppe mit der gesuchten GUID
+      description: Liefert die Merkmalsgruppe mit der übergebenen GUID zurück
       parameters:
         - in: path
           name: guid
@@ -77,736 +77,14 @@ paths:
             type: string
             format: uuid
           required: true
-          description: GUID der Merkmalsgruppe
+          description: GUID der gesuchten Merkmalsgruppe
       responses:
         '200':    # status code
           description: Ein JSON-Objekt der gesuchten Merkmalsgruppe
           content:
             application/json:
               schema: 
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  guid:
-                    type: string
-                    format: uuid
-                  status:
-                    type: string
-                  propertyStatus:
-                    type: string
-                  dateOfCreation:
-                    type: string
-                  dateOfActivation:
-                    type: string
-                  dateOfLastChange:
-                    type: string
-                  dateOfRevision:
-                    type: string
-                  dateOfVersion:
-                    type: string
-                  dateOfDeactivation:
-                    type: string
-                  versionNumber:
-                    type: integer
-                  revisionNumber:
-                    type: integer
-                  replaces:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        namesInLanguage:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              name:
-                                type: string
-                              language:
-                                type: string
-                              languageName:
-                                type: string
-                              countryName:
-                                type: string
-                        versionNumber:
-                          type: integer
-                        revisionNumber:
-                          type: integer
-                        propertyStatus:
-                          type: string
-                  replacedBy:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        namesInLanguage:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              name:
-                                type: string
-                              language:
-                                type: string
-                              languageName:
-                                type: string
-                              countryName:
-                                type: string
-                        versionNumber:
-                          type: integer
-                        revisionNumber:
-                          type: integer
-                        propertyStatus:
-                          type: string
-                  deprecationExplanation:
-                    type: string
-                  relationOfThePropertyGroupIdentifiersInTheInterconnectedDictionaries:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        format: uuid
-                      version:
-                        type: integer
-                      createdDate:
-                        type: string
-                      propGroupID:
-                        type: string
-                      interConDictID:
-                        type: string
-                  creatorsLanguage:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                      language:
-                        type: string
-                      country:
-                        type: string
-                  namesInLanguage:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                        language:
-                          type: string
-                        languageName:
-                          type: string
-                        countryName:
-                          type: string
-                  definitionsInLanguage:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        definition:
-                          type: string
-                        language:
-                          type: string
-                  visualRepresentations:
-                    type: array
-                    items:
-                      type: string
-                  countryOfUse:
-                    type: array
-                    items:
-                      type: string
-                  subdivisionOfUse:
-                    type: array
-                    items:
-                      type: string
-                  countryOfOrigin:
-                    type: string
-                  categoryOfGroupOfProperties:
-                    type: string
-                  properties:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        guid:
-                          type: string
-                          format: uuid
-                        status:
-                          type: string
-                        propertyStatus:
-                          type: string
-                        dateOfCreation:
-                          type: string
-                        dateOfActivation:
-                          type: string
-                        dateOfLastChange:
-                          type: string
-                        dateOfRevision:
-                          type: string
-                        dateOfVersion:
-                          type: string
-                        dateOfDeactivation:
-                          type: string
-                        versionNumber:
-                          type: integer
-                        revisionNumber:
-                          type: integer
-                        replaces:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                                format: uuid
-                              namesInLanguage:
-                                type: array
-                                items:
-                                  type: object
-                                  properties:
-                                    name:
-                                      type: string
-                                    language:
-                                      type: string
-                                    languageName:
-                                      type: string
-                                    countryName:
-                                      type: string
-                              versionNumber:
-                                type: integer
-                              revisionNumber:
-                                type: integer
-                              propertyStatus:
-                                type: string
-                        replacedBy:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                                format: uuid
-                              namesInLanguage:
-                                type: array
-                                items:
-                                  type: object
-                                  properties:
-                                    name:
-                                      type: string
-                                    language:
-                                      type: string
-                                    languageName:
-                                      type: string
-                                    countryName:
-                                      type: string
-                              versionNumber:
-                                type: integer
-                              revisionNumber:
-                                type: integer
-                              propertyStatus:
-                                type: string
-                        deprecationExplanation:
-                          type: string
-                        relationOfThePropertyIdentifiersInTheInterconnectedDictionaries:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                              version:
-                                type: integer
-                              createdDate:
-                                type: string
-                              propertyID:
-                                type: string
-                              interConDictID:
-                                type: string
-                        creatorsLanguage:
-                          type: object
-                          properties:
-                            code:
-                              type: string
-                            language:
-                              type: string
-                            country:
-                              type: string
-                        namesInLanguage:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              name:
-                                type: string
-                              language:
-                                type: string
-                              languageName:
-                                type: string
-                              countryName:
-                                type: string
-                        definitionsInLanguage:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              definition:
-                                type: string
-                              language:
-                                type: string
-                        descriptionsInLanguage:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              descriptionn:
-                                type: string
-                              language:
-                                type: string
-                              languageName:
-                                type: string
-                              countryName:
-                                type: string
-                        examplesInLanguage:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              example:
-                                type: string
-                              language:
-                                type: string
-                              languageName:
-                                type: string
-                              countryName:
-                                type: string
-                        connectedProperties:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                                format: uuid
-                              namesInLanguage:
-                                type: array
-                                items:
-                                  type: object
-                                  properties:
-                                    name:
-                                      type: string
-                                    language:
-                                      type: string
-                                    languageName:
-                                      type: string
-                                    countryName:
-                                      type: string
-                              versionNumber:
-                                type: integer
-                              revisionNumber:
-                                type: integer
-                              propertyStatus:
-                                type: string
-                        groupOfProperties:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                                format: uuid
-                              namesInLanguage:
-                                type: array
-                                items:
-                                  type: object
-                                  properties:
-                                    name:
-                                      type: string
-                                    language:
-                                      type: string
-                                    languageName:
-                                      type: string
-                                    countryName:
-                                      type: string
-                              versionNumber:
-                                type: integer
-                              revisionNumber:
-                                type: integer
-                              propertyStatus:
-                                type: string
-                              containsProperty:
-                                type: boolean
-                              guid:
-                                type: string
-                                format: uuid
-                        symbolsOfThePropertyInAGivenPropertyGroup:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              symbol:
-                                type: string
-                              propGroupID:
-                                type: string
-                                format: uuid
-                              groupNames:
-                                type: array
-                                items:
-                                  type: object
-                                  properties:
-                                    name:
-                                      type: string
-                                    language:
-                                      type: string
-                                    languageName:
-                                      type: string
-                                    countryName:
-                                      type: string
-                        visualRepresentations:
-                          type: array
-                          items:
-                            type: string
-                        countryOfUse:
-                          type: array
-                          items:
-                            type: string
-                        subdivisionOfUse:
-                          type: array
-                          items:
-                            type: string
-                        countryOfOrigin:
-                          type: string
-                        physicalQuantity:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                                format: uuid
-                              version:
-                                type: integer
-                              creationDate:
-                                type: string
-                              siUnit:
-                                type: string
-                              language:
-                                type: string
-                        dimension:
-                          type: string
-                        methodOfMeasurement:
-                          type: string
-                        dataType:
-                          type: string
-                        dynamicProperty:
-                          type: string
-                        parametersOfTheDynamicProperty:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                                format: uuid
-                              namesInLanguage:
-                                type: array
-                                items:
-                                  type: object
-                                  properties:
-                                    name:
-                                      type: string
-                                    language:
-                                      type: string
-                                    languageName:
-                                      type: string
-                                    countryName:
-                                      type: string
-                              versionNumber:
-                                type: integer
-                              revisionNumber:
-                                type: integer
-                              propertyStatus:
-                                type: string
-                        units:
-                          type: array
-                          items:
-                            type: string
-                        namesOfTheDefiningValues:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                                format: uuid
-                              version:
-                                type: integer
-                              createdDate:
-                                type: string
-                              name:
-                                type: string
-                              language:
-                                type: string
-                              value:
-                                type: string
-                        definingValues:
-                          type: array
-                          items:
-                            type: string
-                        tolerance:
-                          type: array
-                          items:
-                            type: integer
-                        digitalFormat:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                                format: uuid
-                              version:
-                                type: integer
-                              createdDate:
-                                type: string
-                              precision:
-                                type: string
-                              unitOfMeasure:
-                                type: string
-                        textFormat:
-                          type: object
-                          properties:
-                            encoding:
-                              type: string
-                            numberOfCharacters:
-                              type: string
-                        listOfPossibleValuesInLanguage:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                                format: uuid
-                              version:
-                                type: integer
-                              createdDate:
-                                type: string
-                              possibleValue:
-                                type: string
-                              language:
-                                type: string
-                              value:
-                                type: string
-                        boundaryValues:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                                format: uuid
-                              version:
-                                type: integer
-                              createdDate:
-                                type: string
-                              boundaryValuePairs:
-                                type: array
-                                items:
-                                  type: string
-                              unit:
-                                type: string
-                        metadata:
-                          type: object
-                          properties:
-                            status:
-                              type: string
-                            visibility:
-                              type: string
-                            external:
-                              type: boolean
-                            organisationId:
-                              type: string
-                              format: uuid
-                            transferred:
-                              type: boolean
-                        bookmarked:
-                          type: object
-                          properties:
-                            bookmarkId:
-                              type: string
-                              format: uuid
-                        observed:
-                          type: object
-                          properties:
-                            observationId:
-                              type: string
-                              format: uuid
-                        organisationId:
-                          type: string
-                          format: uuid
-                        organisationName:
-                          type: string
-                        tags:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              tag:
-                                type: object
-                                properties:
-                                  id:
-                                    type: string
-                                    format: uuid
-                                  name:
-                                    type: string
-                                  organisationId:
-                                    type: string
-                                    format: uuid
-                                  global:
-                                    type: boolean
-                                  assignmentCount:
-                                    type: integer
-                              organisationId:
-                                type: string
-                                format: uuid
-                        organisationType:
-                          type: string
-                        canCreateNewVersion:
-                          type: boolean
-                  childrenPropertyGroups:
-                    type: array
-                    items:
-                      type: object
-                  parentGroup:
-                    type: object
-                    properties:
-                      id:
-                        type: string
-                        format: uuid
-                      namesInLanguage:
-                        type: array
-                        items:
-                          type: object
-                          properties:
-                            name:
-                              type: string
-                            language:
-                              type: string
-                            languageName:
-                              type: string
-                            countryName:
-                              type: string
-                      versionNumber:
-                        type: integer
-                      revisionNumber:
-                        type: integer
-                      propertyStatus:
-                        type: string
-                      containsProperty:
-                        type: boolean
-                      guid:
-                        type: string
-                        format: uuid
-                  metadata:
-                    type: object
-                    properties:
-                      status:
-                        type: string
-                      visibility:
-                        type: string
-                      external:
-                        type: boolean
-                      organisationId:
-                        type: string
-                        format: uuid
-                      transferred:
-                        type: boolean
-                  bookmarked:
-                    type: object
-                    properties:
-                      bookmarkId:
-                        type: string
-                        format: uuid
-                  observed:
-                    type: object
-                    properties:
-                      observationId:
-                        type: string
-                        format: uuid
-                  simpleInheritedProperties:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        names:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              id:
-                                type: string
-                                format: uuid
-                              version:
-                                type: integer
-                              createdDate:
-                                type: string
-                              name:
-                                type: string
-                              language:
-                                type: string
-                              value:
-                                type: string
-                        versionNumber:
-                          type: integer
-                        revisionNumber:
-                          type: integer
-                        propertyStatus:
-                          type: string
-                  organisationId:
-                    type: string
-                    format: uuid
-                  organisationName:
-                    type: string
-                    format: uuid
-                  tags:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        tag:
-                          type: object
-                          properties:
-                            id:
-                              type: string
-                              format: uuid
-                            name:
-                              type: string
-                            organisationId:
-                              type: string
-                              format: uuid
-                            global:
-                              type: boolean
-                            assignmentCount:
-                              type: integer
-                        organisationId:
-                          type: string
-                          format: uuid
-                  organisationType:
-                    type: string
-                  canCreateNewVersion:
-                    type: boolean
+                $ref: '#/components/schemas/Merkmalsgruppe'
         '403':
           description: Es besteht kein Recht, diese Merkmalsgruppe zu sehen
         '404':
@@ -817,7 +95,7 @@ paths:
     post:
       tags:
         - Merkmale
-      summary: Merkmale
+      summary: Liste von Merkmalen
       description: Liste aller öffentlich sichtbaren Merkmale, welche die übermittelten Filterkriterien erfüllen
       requestBody:
         description: Im Request Body dieser Anfrage werden die gewünschten Suchfilterkriterien angeben. Eine detaillierte Dokumentation der Suchfilter ist dem unten stehenden Suchfilterschema zu entnehmen.
@@ -841,7 +119,7 @@ paths:
       tags:
         - Merkmale
       summary: Merkmal
-      description: Liefert das Merkmal mit der gesuchten GUID
+      description: Liefert das Merkmal mit der übergebenen GUID zurück
       parameters:
         - in: path
           name: guid
@@ -849,463 +127,14 @@ paths:
             type: string
             format: uuid
           required: true
-          description: GUID des Merkmals
+          description: GUID der gesuchten Merkmalsgruppe
       responses:
         '200':    # status code
           description: Ein JSON-Objekt des gesuchten Merkmals
           content:
             application/json:
               schema: 
-                type: object
-                properties:
-                  id:
-                    type: string
-                    format: uuid
-                  guid:
-                    type: string
-                    format: uuid
-                  status:
-                    type: string
-                  propertyStatus:
-                    type: string
-                  dateOfCreation:
-                    type: string
-                  dateOfActivation:
-                    type: string
-                  dateOfLastChange:
-                    type: string
-                  dateOfRevision:
-                    type: string
-                  dateOfVersion:
-                    type: string
-                  dateOfDeactivation:
-                    type: string
-                  versionNumber:
-                    type: integer
-                  revisionNumber:
-                    type: integer
-                  replaces:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        namesInLanguage:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              name:
-                                type: string
-                              language:
-                                type: string
-                              languageName:
-                                type: string
-                              countryName:
-                                type: string
-                        versionNumber:
-                          type: integer
-                        revisionNumber:
-                          type: integer
-                        propertyStatus:
-                          type: string
-                  replacedBy:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        namesInLanguage:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              name:
-                                type: string
-                              language:
-                                type: string
-                              languageName:
-                                type: string
-                              countryName:
-                                type: string
-                        versionNumber:
-                          type: integer
-                        revisionNumber:
-                          type: integer
-                        propertyStatus:
-                          type: string
-                  deprecationExplanation:
-                    type: string
-                  relationOfThePropertyIdentifiersInTheInterconnectedDictionaries:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                        version:
-                          type: integer
-                        createdDate:
-                          type: string
-                        propertyID:
-                          type: string
-                        interConDictID:
-                          type: string
-                  creatorsLanguage:
-                    type: object
-                    properties:
-                      code:
-                        type: string
-                      language:
-                        type: string
-                      country:
-                        type: string
-                  namesInLanguage:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        name:
-                          type: string
-                        language:
-                          type: string
-                        languageName:
-                          type: string
-                        countryName:
-                          type: string
-                  definitionsInLanguage:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        definition:
-                          type: string
-                        language:
-                          type: string
-                  descriptionsInLanguage:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        descriptionn:
-                          type: string
-                        language:
-                          type: string
-                        languageName:
-                          type: string
-                        countryName:
-                          type: string
-                  examplesInLanguage:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        example:
-                          type: string
-                        language:
-                          type: string
-                        languageName:
-                          type: string
-                        countryName:
-                          type: string
-                  connectedProperties:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        namesInLanguage:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              name:
-                                type: string
-                              language:
-                                type: string
-                              languageName:
-                                type: string
-                              countryName:
-                                type: string
-                        versionNumber:
-                          type: integer
-                        revisionNumber:
-                          type: integer
-                        propertyStatus:
-                          type: string
-                  groupOfProperties:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        namesInLanguage:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              name:
-                                type: string
-                              language:
-                                type: string
-                              languageName:
-                                type: string
-                              countryName:
-                                type: string
-                        versionNumber:
-                          type: integer
-                        revisionNumber:
-                          type: integer
-                        propertyStatus:
-                          type: string
-                        containsProperty:
-                          type: boolean
-                        guid:
-                          type: string
-                          format: uuid
-                  symbolsOfThePropertyInAGivenPropertyGroup:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        symbol:
-                          type: string
-                        propGroupID:
-                          type: string
-                          format: uuid
-                        groupNames:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              name:
-                                type: string
-                              language:
-                                type: string
-                              languageName:
-                                type: string
-                              countryName:
-                                type: string
-                  visualRepresentations:
-                    type: array
-                    items:
-                      type: string
-                  countryOfUse:
-                    type: array
-                    items:
-                      type: string
-                  subdivisionOfUse:
-                    type: array
-                    items:
-                      type: string
-                  countryOfOrigin:
-                    type: string
-                  physicalQuantity:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        version:
-                          type: integer
-                        creationDate:
-                          type: string
-                        siUnit:
-                          type: string
-                        language:
-                          type: string
-                  dimension:
-                    type: string
-                  methodOfMeasurement:
-                    type: string
-                  dataType:
-                    type: string
-                  dynamicProperty:
-                    type: string
-                  parametersOfTheDynamicProperty:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        namesInLanguage:
-                          type: array
-                          items:
-                            type: object
-                            properties:
-                              name:
-                                type: string
-                              language:
-                                type: string
-                              languageName:
-                                type: string
-                              countryName:
-                                type: string
-                        versionNumber:
-                          type: integer
-                        revisionNumber:
-                          type: integer
-                        propertyStatus:
-                          type: string
-                  units:
-                    type: array
-                    items:
-                      type: string
-                  namesOfTheDefiningValues:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        version:
-                          type: integer
-                        createdDate:
-                          type: string
-                        name:
-                          type: string
-                        language:
-                          type: string
-                        value:
-                          type: string
-                  definingValues:
-                    type: array
-                    items:
-                      type: string
-                  tolerance:
-                    type: array
-                    items:
-                      type: integer
-                  digitalFormat:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        version:
-                          type: integer
-                        createdDate:
-                          type: string
-                        precision:
-                          type: string
-                        unitOfMeasure:
-                          type: string
-                  textFormat:
-                    type: object
-                    properties:
-                      encoding:
-                        type: string
-                      numberOfCharacters:
-                        type: string
-                  listOfPossibleValuesInLanguage:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        version:
-                          type: integer
-                        createdDate:
-                          type: string
-                        possibleValue:
-                          type: string
-                        language:
-                          type: string
-                        value:
-                          type: string
-                  boundaryValues:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: string
-                          format: uuid
-                        version:
-                          type: integer
-                        createdDate:
-                          type: string
-                        boundaryValuePairs:
-                          type: array
-                          items:
-                            type: string
-                        unit:
-                          type: string
-                  metadata:
-                    type: object
-                    properties:
-                      status:
-                        type: string
-                      visibility:
-                        type: string
-                      external:
-                        type: boolean
-                      organisationId:
-                        type: string
-                        format: uuid
-                      transferred:
-                        type: boolean
-                  bookmarked:
-                    type: object
-                    properties:
-                      bookmarkId:
-                        type: string
-                        format: uuid
-                  observed:
-                    type: object
-                    properties:
-                      observationId:
-                        type: string
-                        format: uuid
-                  organisationId:
-                    type: string
-                    format: uuid
-                  organisationName:
-                    type: string
-                  tags:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        tag:
-                          type: object
-                          properties:
-                            id:
-                              type: string
-                              format: uuid
-                            name:
-                              type: string
-                            organisationId:
-                              type: string
-                              format: uuid
-                            global:
-                              type: boolean
-                            assignmentCount:
-                              type: integer
-                        organisationId:
-                          type: string
-                          format: uuid
-                  organisationType:
-                    type: string
-                  canCreateNewVersion:
-                    type: boolean
+                $ref: '#/components/schemas/Merkmal'
         '403':
           description: Es besteht kein Recht, dieses Merkmal zu sehen
         '404':
@@ -1334,7 +163,7 @@ components:
           example: "1f1426b8-099e-46cb-b668-6d931bf29d8c"
           type: string
         bundOrganisationOrChild:
-          description: Ein Wahrheitswert der angibt, ob es sich bei dieser Organisation um die Pflegestelle Bund oder um eine Kindorganisation der pflegestelle handelt.
+          description: Ein Wahrheitswert der angibt, ob es sich bei dieser Organisation um die Pflegestelle Bund oder um eine Kindorganisation der Pflegestelle handelt.
           example: true
           type: boolean
     Merkmalsfiltergruppe:
@@ -1343,6 +172,7 @@ components:
         name:
           description: Name der Merkmalsfiltergruppe
           example: "Leistungsphasen"
+          type: string
         guid:
           description: Global einzigartige Identifikationsnummer der Merkmalsfiltergruppe
           example: "8e9b9ed6-9704-461b-97af-05e3d61a97f2"
@@ -1366,7 +196,7 @@ components:
       type: object
       properties:
         organisationGuids:
-          description: Diese Liste ermöglicht es, GUIDs von Organisationen als Suchkriterium zu übergeben. Die zurückgelierten Ergebnisse einer Anfrage enthalten dann nur öffentlich sichtbaren Merkmalsgruppen/Merkmale aus den angegebenen Organisationen.
+          description: Diese Liste ermöglicht es, GUIDs von Organisationen als Suchkriterium zu übergeben. Die zurückgelierten Ergebnisse einer Anfrage enthalten dann nur die öffentlich sichtbaren Merkmalsgruppen oder Merkmale aus den angegebenen Organisationen.
           type: array
           items:
             description: Global einzigartige Identifikationsnummer einer konkreten Organisation
@@ -1374,11 +204,11 @@ components:
             type: string
             format: uuid
         searchString:
-          description: Alle öffentlich verfügabren Merkmalsgruppen/Merkmale werden, nach dem angegeben Schlagwort durchsucht. 
+          description: Teilstring, nach dem die Namen der öffentlich verfügabren Merkmalsgruppen oder Merkmale durchsucht werden. Enthält eine Merkmalsgruppe oder ein Merkmal, den Teilstring wird es der Ergebnismenge hinzugefügt 
           example: "Betonfestigkeit"
           type: string
         filterGuids:
-          description: Diese Liste ermöglicht es, GUIDs von Filtern als Suchkriterium zu übergeben. Die zurückgelierten Ergebnisse einer Anfrage enthalten dann nur öffentlich sichtbaren Merkmalsgruppen/Merkmale, die den angegebenen Filtern untergeordnet sind. 
+          description: Diese Liste ermöglicht es, GUIDs von Filtern als Suchkriterium zu übergeben. Die zurückgelierten Ergebnisse einer Anfrage enthalten dann nur öffentlich sichtbaren Merkmalsgruppen oder Merkmale, die den angegebenen Filtern untergeordnet sind. 
           type: array
           items:
             description: Global einzigartige Identifikationsnummer eines konkreten Filters
@@ -1386,15 +216,15 @@ components:
             type: string
             format: uuid
         parentGuid:
-          description: Dieser Filterparameter schränkt ein, welchem Elemente das angefragte Informationselement untergeordnet ist.
+          description: Hier kann eine GUID angegeben werden, in denen angefragten Merkmalsgruppen oder Merkmale enthalten sein müssen.
           example: "1f24c5a5-4fb9-44be-8393-7f44b03eb0e4"
           type: string
         includeDeprecated:
-          description: Ein Wahrheitswert, der angibt, ob bei der Suche nach öffentlich sichtbaren Merkmalsgruppen auch veraltete Objekte Merkmalsgruppen/Merkmale zurückgeliefert werden sollen
+          description: Ein Wahrheitswert, der angibt, ob bei der Suche nach öffentlich sichtbaren Merkmalsgruppen auch veraltete Merkmalsgruppen oder Merkmale zurückgeliefert werden sollen
           example: true
           type: boolean
         pageNumber:
-          description: Mit diesem Parameter kann übermittelt werden, welche Seite der Paginierung der Suchergebnisse zurückgegeben wird. Per Default wird der Wert 0 übergeben
+          description: Mit diesem Parameter kann übermittelt werden, welche Seite der Suchergebnisse zurückgegeben wird. Per Default wird der Wert 0 übergeben
           example: 0
           type: integer
     Kurzinformation:
@@ -1438,4 +268,794 @@ components:
           type: string
         deprecated:
           description:  Ein Wahrheitswert der angibt, ob das zurückgelieferte Informationselement veraltet ist oder nicht.
-          type: boolean    
+          type: boolean  
+    Merkmal:
+      type: object
+      properties:
+          id:
+            type: string
+            format: uuid
+          guid:
+            description: Global eindeutiger Bezeichner
+            type: string
+            format: uuid
+          status:
+            description: Status des Merkmals während seines Lebenszyklus
+            type: string
+          propertyStatus:
+            description: Global eindeutiger Bezeichner
+            type: string
+          dateOfCreation:
+            description: Datum der Validierung der An-frage zur Erstellung des Merkmals durch Sachverständige
+            type: string
+          dateOfActivation:
+            description: Datum, nach dem das Merkmal verwendet werden kann
+            type: string
+          dateOfLastChange:
+            description: Datum der Validierung der letzten Änderungsanfrage durch Sachverständige
+            type: string
+          dateOfRevision:
+            description: Datum der Überarbeitung
+            type: string
+          dateOfVersion:
+            description: Datum der Version
+            type: string
+          dateOfDeactivation:
+            description: Datum, ab dem das Merkmal veraltet ist; das Merkmal wird im Datenkatalog behalten
+            type: string
+          versionNumber:
+            description: Diese Versionsnummer ermöglicht die Verfolgung größerer Änderungen. Sachverständige entscheiden, ob eine neue Versionsnummer angewendet wer-den muss.
+            type: integer
+          revisionNumber:
+            description: "Diese Nummer der Überarbeitung ermöglicht die Verfolgung kleinerer Änderungen, z. B. neue Übersetzung, Korrekturen von Tippfehlern: wenn sich die Versionsnummer ändert, beginnt die Nummer der Überarbeitung wieder bei 1. Sachverständige entscheiden, ob eine neue Nummer der Überarbeitung angewendet werden kann oder ob eine neue Überarbeitung erforderlich ist."
+            type: integer
+          replaces:
+            description: Global eindeutiger Bezeichner (Attribut PA001) des ersetzten Merkmals (oder der Merkmale)
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                namesInLanguage:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      language:
+                        type: string
+                      languageName:
+                        type: string
+                      countryName:
+                        type: string
+                versionNumber:
+                  type: integer
+                revisionNumber:
+                  type: integer
+                propertyStatus:
+                  type: string
+          replacedBy:
+            description: Global eindeutiger Bezeichner (Attribut PA001) des ersetzenden Merkmals (oder der Merkmale)
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                namesInLanguage:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      language:
+                        type: string
+                      languageName:
+                        type: string
+                      countryName:
+                        type: string
+                versionNumber:
+                  type: integer
+                revisionNumber:
+                  type: integer
+                propertyStatus:
+                  type: string
+          deprecationExplanation: 
+            description: Satz, der den Grund für die Ab-lehnung erläutert, der erklären kann, wie Werte umzurechnen sind, damit sie dem neuen Merkmal entsprechen
+            type: string
+          relationOfThePropertyIdentifiersInTheInterconnectedDictionaries:
+            description: Liste von Paaren (interner Merk-malsbezeichner, entsprechender Datenkatalog-Bezeichner) dieses Attribut sollte für die Verträglichkeit zwischen bereits vorhandenen Merkmalen verwendet werden
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                version:
+                  type: integer
+                createdDate:
+                  type: string
+                propertyID:
+                  type: string
+                interConDictID:
+                  type: string
+          creatorsLanguage:
+            description: Sprache des Erstellers des Merkmals
+            type: object
+            properties:
+              code:
+                type: string
+              language:
+                type: string
+              country:
+                type: string
+          namesInLanguage:
+            description: Liste von Paaren (Name des Merkmals und Sprache) dieses Attribut kann verwendet werden, um Synonyme für verschiedene Domänen hinzuzufügen
+            type: array
+            items:
+              type: object
+              properties:
+                name:
+                  type: string
+                language:
+                  type: string
+                languageName:
+                  type: string
+                countryName:
+                  type: string
+          definitionsInLanguage:
+            description: Liste von Paaren (Definition des Merkmals, Sprache)
+            type: array
+            items:
+              type: object
+            properties:
+                definition:
+                  type: string
+                language:
+                  type: string
+          descriptionsInLanguage:
+            description: Liste von Paaren (Beschreibung des Merkmals, Sprache) dieses Attribut wird verwendet, um eine Beschreibung des Merkmals als Klartext bereitzustellen
+            type: array
+            items:
+              type: object
+              properties:
+                description:
+                  type: string
+                language:
+                  type: string
+                languageName:
+                  type: string
+                countryName:
+                  type: string
+          examplesInLanguage:
+            description: Liste von Paaren (Beispielwerte, Sprache) dieses Attribut kann zur Veranschaulichung der möglichen Werte des Merkmals verwendet werden
+            type: array
+            items:
+              type: object
+              properties:
+                example:
+                  type: string
+                language:
+                  type: string
+                languageName:
+                  type: string
+                countryName:
+                  type: string
+          connectedProperties:
+            description: Liste der global eindeutigen Be-zeichner der verbundenen Merkmale (Attribut PA001); der Wert eines Merkmals steht zu den Werten der anderen in einer Beziehung. Beispielsweise ist ein Schallabsorptionsgrad für eine bestimmte Frequenz gegeben, in diesem Fall sind Schallabsorp-tionsgrad und Frequenz ver-bundene Merkmale.
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                namesInLanguage:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      language:
+                        type: string
+                      languageName:
+                        type: string
+                      countryName:
+                        type: string
+                versionNumber:
+                  type: integer
+                revisionNumber:
+                  type: integer
+                propertyStatus:
+                  type: string
+          groupOfProperties:
+            description: Liste von global eindeutigen Be-zeichnern von Merkmalsgruppen (Attribut GA001), denen das Merkmal angehört
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                namesInLanguage:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      language:
+                        type: string
+                      languageName:
+                        type: string
+                      countryName:
+                        type: string
+                versionNumber:
+                  type: integer
+                revisionNumber:
+                  type: integer
+                propertyStatus:
+                  type: string
+                containsProperty:
+                  type: boolean
+                guid:
+                  type: string
+                  format: uuid
+          symbolsOfThePropertyInAGivenPropertyGroup:
+            description: Liste von Paaren (Symbol des Merkmals, global eindeutiger Bezeichner der Merkmalsgruppe (Attribut GA001))
+            type: array
+            items:
+              type: object
+              properties:
+                symbol:
+                  type: string
+                propGroupID:
+                  type: string
+                  format: uuid
+                groupNames:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      language:
+                        type: string
+                      languageName:
+                        type: string
+                      countryName:
+                        type: string
+          visualRepresentations:
+            description: bildliche Darstellung des Merkmals durch Skizzen, Fotos, Videos oder sonstige Multimedia-Objekte
+            type: array
+            items:
+              type: string
+          countryOfUse: 
+            description: "Land (Gruppe von Ländern, Kon-tinent), in dem das Merkmal für den Markt, auf dem die Betei-ligten arbeiten, relevant ist Zum Beispiel: ISOLE (das Nutzungsprofil „ISOLE“ ist dafür bestimmt, die Angabe der Eignung von Wär-medämmprodukten in Bezug auf die Bedürfnisse von Nutzern zu vereinfachen, und wie in einer Reihe von kodifizierten Texten dargelegt) hat es ein Land der Verwendung: Europa"
+            type: array
+            items:
+              type: string
+          subdivisionOfUse:
+            description: dokumentierte geographische Region der Verwendung des Merkmals
+            type: array
+            items:
+              type: string
+          countryOfOrigin:
+            description: Land, aus dem die Anforderung an dieses Merkmal stammt
+            type: string
+          physicalQuantity: 
+            description: Liste von Paaren (physikalische Größe | Sprache) Physikalische Größen werden in Einheiten des Internationalen Einheitensystems (SI) angegeben      
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                version:
+                  type: integer
+                creationDate:
+                  type: string
+                siUnit:
+                  type: string
+                language:
+                  type: string
+          dimension:
+            description: "Im Falle einer physikalischen Größe, Dimension nach ISO 80000 (alle Teile) dieses Attribut ermöglicht, dass die Dimension maschinenlesbar ist; da alle physikalischen Größen von 7 Basisgrößen abgeleitet sind, wird es durch Angabe der Basisdimensionen mit zugehöriger Potenz (als rationale Zahl) in der folgenden Reihenfolge und mit jeweils einem Leerzeichen dazwischen angegeben: L M T I θ N J"
+            type: string
+          methodOfMeasurement:
+            description: Beurteilung von Bauprodukten, um ihre Tauglichkeit entspre-chend den Anforderungen in harmonisierten technischen Spezifikationen sicherzustellen
+            type: string
+          dataType:
+            description: "Format für die Angabe des Wertes des Merkmals dies kann aus einer Soft-ware-Perspektive als Speiche-rungsart verstanden werden im Falle eines dynamischen Merkmals ist der Wert dieses Attributs der Datentyp des Er-gebnisses der Berechnung mit der Gleichung"
+            type: string
+          dynamicProperty: 
+            description: Wenn es sich um ein dynamisches Merkmal handelt, hängt der Wert von den im Attribut PA032 bereitgestellten Parametern ab
+            type: string
+          parametersOfTheDynamicProperty:
+            description: Liste von GUIDs von Merkmalen, welche Parameter der Funktion für ein dynamisches Merkmal sind
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                namesInLanguage:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                      language:
+                        type: string
+                      languageName:
+                        type: string
+                      countryName:
+                        type: string
+                versionNumber:
+                  type: integer
+                revisionNumber:
+                  type: integer
+                propertyStatus:
+                  type: string
+          units: 
+            description: "eine Einheit zur Darstellung einer Skala, die es ermöglicht, einen Wert zu messen es ist möglich, dieses Attribut zu verwenden, um zu erläutern, dass dem Merkmal keine Einheit zugeordnet ist, indem „ein-heitslos“ verwendet wird"
+            type: array
+            items:
+              type: string
+          namesOfTheDefiningValues:
+            description: Im Falle eines Feldes liefert dieses Attribut die Namen der Spaltenköpfe, festgelegt als Liste von Paaren (Name, Sprache)
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                version:
+                  type: integer
+                createdDate:
+                  type: string
+                name:
+                  type: string
+                language:
+                  type: string
+                value:
+                  type: string
+          definingValues:
+            description: Im Falle eines Feldes liefert dieses Attribut die definierenden Werte, sofern zutreffend, der Datentyp wird durch das Attribut PA030 angegeben
+            type: array
+            items:
+              type: string
+          tolerance:
+            description: Für numerische Werte; der Ge-samtbetrag, um den eine be-stimmte Einheit schwanken darf; sie ist die Differenz zwischen dem Höchstwert und dem Mindestwert für die Einheit
+            type: array
+            items:
+              type: integer
+          digitalFormat:
+            description: Paar für den digitalen Texttyp (Präzision, Maßeinheit) Präzision ist die Anzahl signifi-kanter Stellen
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                version:
+                  type: integer
+                createdDate:
+                  type: string
+                precision:
+                  type: string
+                unitOfMeasure:
+                  type: string
+          textFormat:
+            description: Paar für den Texttyp (Ver-schlüsselung, Anzahl der Zeichen) die Verschlüsselung wird nach „Name der Codierungsnorm“ von IANA, RFC 2978 festgelegt
+            type: object
+            properties:
+              encoding:
+                type: string
+              numberOfCharacters:
+                type: string
+          listOfPossibleValuesInLanguage:
+            description: Liste von Paaren (möglicher Wert für das Merkmal und Sprache) Werte können String oder Zahlen sein
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                version:
+                  type: integer
+                createdDate:
+                  type: string
+                possibleValue:
+                  type: string
+                language:
+                  type: string
+                value:
+                  type: string
+          boundaryValues:
+            description: Paar (Liste von Grenz-wert-Intervallen möglicher Werte für das Merkmal, Einheit)
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                version:
+                  type: integer
+                createdDate:
+                  type: string
+                boundaryValuePairs:
+                  type: array
+                  items:
+                    type: string
+                unit:
+                  type: string
+          metadata:
+            type: object
+            properties:
+              status:
+                type: string
+              visibility:
+                type: string
+              external:
+                type: boolean
+              organisationId:
+                type: string
+                format: uuid
+              transferred:
+                type: boolean
+          bookmarked:
+            type: object
+            properties:
+              bookmarkId:
+                type: string
+                format: uuid
+          observed:
+            type: object
+            properties:
+              observationId:
+                type: string
+                format: uuid
+          organisationId:
+            type: string
+            format: uuid
+          organisationName:
+            type: string
+          tags:
+            type: array
+            items:
+              type: object
+              properties:
+                tag:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    name:
+                      type: string
+                    organisationId:
+                      type: string
+                      format: uuid
+                    global:
+                      type: boolean
+                    assignmentCount:
+                      type: integer
+                organisationId:
+                  type: string
+                  format: uuid
+          organisationType:
+            type: string
+          canCreateNewVersion:
+            type: boolean
+    Merkmalsgruppe:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        guid:
+          description: global eindeutiger Be-zeichner
+          type: string
+          format: uuid
+        status:
+          description: Status der Merkmals-gruppe während ihres Lebenszyklus
+          type: string
+        propertyStatus:
+          type: string
+        dateOfCreation: 
+          description: Datum der Validierung der Anfrage zur Erstel-lung der Merkmals-gruppe durch Sachver-ständige
+          type: string
+        dateOfActivation:
+          description: Datum, nach dem die Merkmalsgruppe ver-wendet werden kann
+          type: string
+        dateOfLastChange:
+          description: Datum der Validierung der letzten Änderungs-anfrage durch Sachver-ständige
+          type: string
+        dateOfRevision:
+          description: Datum der Überarbeitung
+          type: string
+        dateOfVersion: 
+          description: Datum der Version
+          type: string
+        dateOfDeactivation: 
+          description: Datum, ab dem die Merkmalsgruppe veraltet ist; die Merkmals-gruppe wird im Daten-katalog behalten  
+          type: string
+        versionNumber:
+          description: Diese Versionsnummer ermöglicht die Verfol-gung größerer Ände-rungen. Die Sachver-ständigen entscheiden, ob die Versionsnummer geändert wer-den muss oder nicht.
+          type: integer
+        revisionNumber: 
+          description: "Diese Nummer der Überarbeitung ermög-licht die Verfolgung kleinerer Änderungen, z. B. neue Übersetzung, Korrekturen von Tipp-fehlern; wenn sich die Versionsnummer än-dert, beginnt die Nummer der Überarbeitung wieder bei 1. Die Sach-verständigen treffen die Entscheidung über die Änderung einer Nummer der Überar-beitung."
+          type: integer
+        replaces:
+          description: Liste von globalen Bezeichnern für die ersetzten Merk-malsgruppen
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              namesInLanguage:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    language:
+                      type: string
+                    languageName:
+                      type: string
+                    countryName:
+                      type: string
+              versionNumber:
+                type: integer
+              revisionNumber:
+                type: integer
+              propertyStatus:
+                type: string
+        replacedBy:
+          description: Liste von globalen Bezeichnern für die ersetzenden Merkmalsgruppen
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              namesInLanguage:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                    language:
+                      type: string
+                    languageName:
+                      type: string
+                    countryName:
+                      type: string
+              versionNumber:
+                type: integer
+              revisionNumber:
+                type: integer
+              propertyStatus:
+                type: string
+        deprecationExplanation:
+          description: Satz, der den Grund für die Ablehnung erläu-tert, der erklären kann, wie Werte umzurech-nen sind, damit sie der neuen Merkmals-gruppe entsprechen; diese Erläuterung muss in internationalem Englisch geschrieben werden 
+          type: string
+        relationOfThePropertyGroupIdentifiersInTheInterconnectedDictionaries:
+          description: "Liste von Paaren (inter-ner Bezeichner der Merkmalsgruppe, ent-sprechender Daten-katalog-Bezeichner) dieses Attribut sollte für die Kompatibilität zwischen bereits vorhandenen Merk-malsgruppen verwen-det werden"
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            version:
+              type: integer
+            createdDate:
+              type: string
+            propGroupID:
+              type: string
+            interConDictID:
+              type: string
+        creatorsLanguage:
+          description: Sprache des Erstellers der Merkmalsgruppe
+          type: object
+          properties:
+            code:
+              type: string
+            language:
+              type: string
+            country:
+              type: string
+        namesInLanguage:
+          description: Liste von Paaren (Name der Merkmals-gruppe und Sprache) dieses Attribut kann verwendet werden, um Synonyme für verschie-dene Domänen hinzu-zufügen
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              language:
+                type: string
+              languageName:
+                type: string
+              countryName:
+                type: string
+        definitionsInLanguage:
+          description: Liste von Paaren (Defi-nition der Merkmals-gruppe, Sprache)
+          type: array
+          items:
+            type: object
+            properties:
+              definition:
+                type: string
+              language:
+                type: string
+        visualRepresentations:
+          description: Bildliche Darstellung der Merkmalsgruppe durch Skizzen, Fotos, Videos oder sonstige Multimedia-Objekte
+          type: array
+          items:
+            type: string
+        countryOfUse:
+          description: Land, in dem die Merk-malsgruppe verwendet wird
+          type: array
+          items:
+            type: string
+        subdivisionOfUse:
+          description: Dokumentierte geogra-phische Region, in der die Merkmalsgruppe verwendet wird
+          type: array
+          items:
+            type: string
+        countryOfOrigin:
+          description: Land, in dem die An-forderung für diese Merkmalsgruppe fest-gelegt wurde
+          type: string
+        categoryOfGroupOfProperties:
+          description: Gibt die Kategorie der erstellten Merkmals-gruppe an 
+          type: string
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/Merkmal'
+        childrenPropertyGroups:
+          type: array
+          items:
+            type: object
+        parentGroup:
+          description: "Ermöglicht die Ver-knüpfung einer Unter-gruppe mit einer über-geordneten Gruppe über ihre global ein-deutigen Bezeichne(Attribut GA001) jedes einer Gruppe zugehörige Merkmal wird von der/den Untergruppe(n) übernommen"
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            namesInLanguage:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  language:
+                    type: string
+                  languageName:
+                    type: string
+                  countryName:
+                    type: string
+            versionNumber:
+              type: integer
+            revisionNumber:
+              type: integer
+            propertyStatus:
+              type: string
+            containsProperty:
+              type: boolean
+            guid:
+              type: string
+              format: uuid
+        metadata:
+          type: object
+          properties:
+            status:
+              type: string
+            visibility:
+              type: string
+            external:
+              type: boolean
+            organisationId:
+              type: string
+              format: uuid
+            transferred:
+              type: boolean
+        bookmarked:
+          type: object
+          properties:
+            bookmarkId:
+              type: string
+              format: uuid
+        observed:
+          type: object
+          properties:
+            observationId:
+              type: string
+              format: uuid
+        simpleInheritedProperties:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              names:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      format: uuid
+                    version:
+                      type: integer
+                    createdDate:
+                      type: string
+                    name:
+                      type: string
+                    language:
+                      type: string
+                    value:
+                      type: string
+              versionNumber:
+                type: integer
+              revisionNumber:
+                type: integer
+              propertyStatus:
+                type: string
+        organisationId:
+          type: string
+          format: uuid
+        organisationName:
+          type: string
+          format: uuid
+        tags:
+          type: array
+          items:
+            type: object
+            properties:
+              tag:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  name:
+                    type: string
+                  organisationId:
+                    type: string
+                    format: uuid
+                  global:
+                    type: boolean
+                  assignmentCount:
+                    type: integer
+              organisationId:
+                type: string
+                format: uuid
+        organisationType:
+          type: string
+        canCreateNewVersion:
+          type: boolean 
