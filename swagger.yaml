@@ -205,23 +205,23 @@ components:
             format: uuid
         searchString:
           description: Teilstring, nach dem die Namen der öffentlich verfügabren Merkmalsgruppen oder Merkmale durchsucht werden. Enthält eine Merkmalsgruppe oder ein Merkmal, den Teilstring wird es der Ergebnismenge hinzugefügt 
-          example: "Aufschlussbereich"
+          example: "Ausstattung"
           type: string
         filterGuids:
           description: Diese Liste ermöglicht es, GUIDs von Filtern als Suchkriterium zu übergeben. Die zurückgelierten Ergebnisse einer Anfrage enthalten dann nur öffentlich sichtbare Merkmalsgruppen oder Merkmale, die den angegebenen Filtern untergeordnet sind. 
           type: array
           items:
             description: Global eindeutiger Identifikator eines konkreten Filters
-            example: "1e119173-0fa6-4909-8ab7-7fab4f51da94"
+            example: "6db91195-0ace-448f-bf44-6eecb79110b6"
             type: string
             format: uuid
         parentGuid:
           description: Hier kann eine GUID angegeben werden, in denen angefragten Merkmalsgruppen oder Merkmale enthalten sein müssen.
-          example: "06d66eec-7595-4dba-8d66-b49af25f6b3b"
+          example: "b0032e13-49f4-4dae-861c-cd9c5dcdb824"
           type: string
         includeDeprecated:
           description: Ein Wahrheitswert, der angibt, ob bei der Suche nach öffentlich sichtbaren Merkmalsgruppen auch veraltete Merkmalsgruppen oder Merkmale zurückgeliefert werden sollen
-          example: true
+          example: false
           type: boolean
         pageNumber:
           description: Mit diesem Parameter kann übermittelt werden, welche Seite der Suchergebnisse zurückgegeben wird. Per Default wird der Wert 0 übergeben.
