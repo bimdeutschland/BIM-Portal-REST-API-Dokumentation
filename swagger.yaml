@@ -46,16 +46,16 @@ paths:
       tags:
         - Merkmalsgruppen
       summary: Liste von Merkmalsgruppen
-      description: Liste aller öffentlich sichtbaren Merkmalsgruppen, welche die übermittelten Filterkriterien erfüllen
+      description: Liste aller öffentlich sichtbaren Merkmalsgruppen, welche die übermittelten Suchkriterien erfüllen
       requestBody:
-        description: Im Request Body dieser Anfrage werden die gewünschten Suchfilterkriterien angeben. Eine detaillierte Dokumentation der Suchfilter ist dem unten stehenden Suchfilterschema zu entnehmen.
+        description: Im Request Body dieser Anfrage werden die gewünschten Suchkriterien angeben. Eine detaillierte Dokumentation der Suchkriterien ist dem unten stehenden Suchkriterienschema zu entnehmen.
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Suchfilter'
+              $ref: '#/components/schemas/Suchkriterium'
       responses:
         '200':    # status code
-          description: Der Response Body dieser Anfrage liefert ein Json-Array mit den Kurzinformationen der öffentlich sichtbaren Merkmalsgruppen zurück, welche die übermittelten Suchfilterkriterien erfüllen. Die Ergebnisse sind aufsteigend nach Namen sortiert. Eine detaillierte Dokumentation der Kurzinformationsobjekte ist dem unten stehenden Kurzinformationsschema zu entnehmen.
+          description: Der Response Body dieser Anfrage liefert ein Json-Array mit den Kurzinformationen der öffentlich sichtbaren Merkmalsgruppen zurück, welche die übermittelten Suchkriterien erfüllen. Die Ergebnisse sind aufsteigend nach Namen sortiert. Eine detaillierte Dokumentation der Kurzinformationsobjekte ist dem unten stehenden Kurzinformationsschema zu entnehmen.
           content:
             application/json:
               schema: 
@@ -96,16 +96,16 @@ paths:
       tags:
         - Merkmale
       summary: Liste von Merkmalen
-      description: Liste aller öffentlich sichtbaren Merkmale, welche die übermittelten Filterkriterien erfüllen
+      description: Liste aller öffentlich sichtbaren Merkmale, welche die übermittelten Suchkriterien erfüllen
       requestBody:
-        description: Im Request Body dieser Anfrage werden die gewünschten Suchfilterkriterien angeben. Eine detaillierte Dokumentation der Suchfilter ist dem unten stehenden Suchfilterschema zu entnehmen.
+        description: Im Request Body dieser Anfrage werden die gewünschten Suchkriterien angeben. Eine detaillierte Dokumentation der Suchkriterien ist dem unten stehenden Suchkriterienschema zu entnehmen.
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Suchfilter'  
+              $ref: '#/components/schemas/Suchkriterium'  
       responses:
         '200':    # status code
-          description: Der Response Body dieser Anfrage liefert ein Json-Array mit den Kurzinformationen der öffentlich sichtbaren Merkmale zurück, welche die übermittelten Suchfilterkriterien erfüllen. Die Ergebnisse sind aufsteigend nach Namen sortiert. Eine detaillierte Dokumentation der Kurzinformationsobjekte ist dem unten stehenden Kurzinformationsschema zu entnehmen.
+          description: Der Response Body dieser Anfrage liefert ein Json-Array mit den Kurzinformationen der öffentlich sichtbaren Merkmale zurück, welche die übermittelten Suchkriterien erfüllen. Die Ergebnisse sind aufsteigend nach Namen sortiert. Eine detaillierte Dokumentation der Kurzinformationsobjekte ist dem unten stehenden Kurzinformationsschema zu entnehmen.
           content:
             application/json:
               schema: 
@@ -127,7 +127,7 @@ paths:
             type: string
             format: uuid
           required: true
-          description: GUID der gesuchten Merkmalsgruppe
+          description: GUID des gesuchten Merkmals
       responses:
         '200':    # status code
           description: Der Response Body dieser Anfrage liefert ein Json-Object mit dem angefragten Merkmale zurück. Eine detaillierte Dokumentation des Merkmalsobjekts ist dem unten stehenden Merkmalsschema zu entnehmen.
@@ -155,11 +155,11 @@ components:
           example: "Organisation für die Koordinierungsstelle Bund"
           type: string
         guid:
-          description: Global einzigartige Identifikationsnummer der Organisation
+          description: Global eindeutiger Identifikator der Organisation
           example: "ee6a7af7-650d-499b-8e32-58a52ffdb7bc"
           type: string
         parentGuid:
-          description: Global einzigartige Identifikationsnummer der Elternorganisation des Organisationsobjekts
+          description: Global eindeutiger Identifikator der Elternorganisation des Organisationsobjekts
           example: "1f1426b8-099e-46cb-b668-6d931bf29d8c"
           type: string
         bundOrganisationOrChild:
@@ -174,7 +174,7 @@ components:
           example: "Leistungsphasen"
           type: string
         guid:
-          description: Global einzigartige Identifikationsnummer der Merkmalsfiltergruppe
+          description: Global eindeutiger Identifikator der Merkmalsfiltergruppe
           example: "8e9b9ed6-9704-461b-97af-05e3d61a97f2"
           type: string
         filter:
@@ -189,42 +189,42 @@ components:
           example: "Lph 1"
           type: string
         guid:
-          description: Global einzigartige Identifikationsnummer des Filters
+          description: Global eindeutiger Identifikator des Filters
           example: "bf0fa540-4448-45de-9c49-52a0795fef85"
           type: string
-    Suchfilter:
+    Suchkriterium:
       type: object
       properties:
         organisationGuids:
           description: Diese Liste ermöglicht es, GUIDs von Organisationen als Suchkriterium zu übergeben. Die zurückgelierten Ergebnisse einer Anfrage enthalten dann nur die öffentlich sichtbaren Merkmalsgruppen oder Merkmale aus den angegebenen Organisationen.
           type: array
           items:
-            description: Global einzigartige Identifikationsnummer einer konkreten Organisation
-            example: "e636c407-80f1-4e44-9989-38ebe3b64459"
+            description: Global eindeutiger Identifikator einer konkreten Organisation
+            example: "44bad2a8-753c-4f59-aae8-0f803f4c7e54"
             type: string
             format: uuid
         searchString:
           description: Teilstring, nach dem die Namen der öffentlich verfügabren Merkmalsgruppen oder Merkmale durchsucht werden. Enthält eine Merkmalsgruppe oder ein Merkmal, den Teilstring wird es der Ergebnismenge hinzugefügt 
-          example: "Betonfestigkeit"
+          example: "Aufschlussbereich"
           type: string
         filterGuids:
-          description: Diese Liste ermöglicht es, GUIDs von Filtern als Suchkriterium zu übergeben. Die zurückgelierten Ergebnisse einer Anfrage enthalten dann nur öffentlich sichtbaren Merkmalsgruppen oder Merkmale, die den angegebenen Filtern untergeordnet sind. 
+          description: Diese Liste ermöglicht es, GUIDs von Filtern als Suchkriterium zu übergeben. Die zurückgelierten Ergebnisse einer Anfrage enthalten dann nur öffentlich sichtbare Merkmalsgruppen oder Merkmale, die den angegebenen Filtern untergeordnet sind. 
           type: array
           items:
-            description: Global einzigartige Identifikationsnummer eines konkreten Filters
+            description: Global eindeutiger Identifikator eines konkreten Filters
             example: "1e119173-0fa6-4909-8ab7-7fab4f51da94"
             type: string
             format: uuid
         parentGuid:
           description: Hier kann eine GUID angegeben werden, in denen angefragten Merkmalsgruppen oder Merkmale enthalten sein müssen.
-          example: "1f24c5a5-4fb9-44be-8393-7f44b03eb0e4"
+          example: "06d66eec-7595-4dba-8d66-b49af25f6b3b"
           type: string
         includeDeprecated:
           description: Ein Wahrheitswert, der angibt, ob bei der Suche nach öffentlich sichtbaren Merkmalsgruppen auch veraltete Merkmalsgruppen oder Merkmale zurückgeliefert werden sollen
           example: true
           type: boolean
         pageNumber:
-          description: Mit diesem Parameter kann übermittelt werden, welche Seite der Suchergebnisse zurückgegeben wird. Per Default wird der Wert 0 übergeben
+          description: Mit diesem Parameter kann übermittelt werden, welche Seite der Suchergebnisse zurückgegeben wird. Per Default wird der Wert 0 übergeben.
           example: 0
           type: integer
     Kurzinformation:
@@ -237,7 +237,7 @@ components:
           description: Defintion des Informationslements
           type: string
         guid:
-          description: Global einzigartige Identifikationsnummer des Informationslements
+          description: Global eindeutiger Identifikator des Informationslements
           type: string
           format: uuid
         versionNumber:
@@ -253,7 +253,7 @@ components:
             type: string
             format: uuid
         organisationName:
-          description: Name der Organisation zu dem das Informationslements gehört
+          description: Name der Organisation zu dem das Informationslement gehört
           type: string
         dataType:
           description: Datentyp des Merkmals. Im Falle einer Merkmalsgruppe ist dieser Wert leer. 
