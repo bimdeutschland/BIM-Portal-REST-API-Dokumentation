@@ -1,5 +1,7 @@
 # BIM-Portal REST-API-Dokumentation
 
+![](https://img.shields.io/badge/license-DL--DE--%3EZero--2.0-blue)
+
 [![pages-build-deployment](https://github.com/bimdeutschland/BIM-Portal-REST-API-Dokumentation/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/bimdeutschland/BIM-Portal-REST-API-Dokumentation/actions/workflows/pages/pages-build-deployment)
 
 BIM Deutschland ist das nationale Zentrum für die Digitalisierung des Bauwesens. Das Bundesministerium für Digitales und Verkehr (BMDV) und das Bundesministerium für Wohnen, Stadtentwicklung und Bauwesen (BMWSB) betreiben BIM Deutschland gemeinsam. BIM Deutschland wurde im Jahr 2019 gegründet. Es ist die zentrale öffentliche Anlaufstelle des Bundes für Informationen und Aktivitäten rund um Building Information Modeling (BIM). Die dort erarbeiteten Informationen und Konzepte zur Digitalisierung des Bauwesens werden für den öffentlichen Bau entwickelt und der gesamten Wertschöpfungskette Planen, Bauen und Betreiben zur Verfügung gestellt. Teil von BIM Deutschland ist das BIM-Portal. Mit dem BIM-Portal stellt BIM Deutschland zukünftig Informationen, Anwendungen und einheitliche BIM-Daten wie interaktive, webbasierte Werkzeuge, Datenbibliotheken und herstellerneutrale Bauteilinfomationen bereit. Weitere Informationen zu BIM Deutschland und dem BIM-Portal finden Sie auf der Webpräsenz von [BIM Deutschland](https://www.bimdeutschland.de).
