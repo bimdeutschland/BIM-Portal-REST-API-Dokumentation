@@ -1,6 +1,6 @@
 # BIM-Portal REST-API-Dokumentation
 
-![](https://img.shields.io/badge/license-DL--DE--%3EZero--2.0-blue)
+[![license](https://img.shields.io/badge/license-DL--DE--%3EZero--2.0-blue)](./LICENSE.md)
 
 [![pages-build-deployment](https://github.com/bimdeutschland/BIM-Portal-REST-API-Dokumentation/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/bimdeutschland/BIM-Portal-REST-API-Dokumentation/actions/workflows/pages/pages-build-deployment)
 
