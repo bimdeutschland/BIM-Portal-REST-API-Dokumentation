@@ -29,7 +29,7 @@ paths:
       tags:
         - Filter
       summary: Liste aller globalen Merkmalsfiltergruppen
-      description: Diese Anfrage generiert eine Liste aller globalen Merkmalsfiltergruppen.
+      description: Diese Anfrage generiert eine Liste aller globalen Merkmalsfiltergruppen
       responses:
         '200':    # status code
           description: Der Response Body dieser Anfrage liefert ein Json-Array mit Merkmalsfiltergruppen. Jedes Merkmalsfiltergruppenobjekt enthält eine Liste einzelner Filter.  Eine detaillierte Dokumentation der Merkmalsfiltergruppen und der Filter ist den unten stehenden Schemata zu entnehmen.
