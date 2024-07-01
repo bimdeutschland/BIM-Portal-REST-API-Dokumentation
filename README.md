@@ -11,7 +11,7 @@ Das BIM-Portal besteht aus verschiedenen Modulen. Im Modul Merkmale des BIM-Port
 Die an dieser Stelle dokumentierte REST-API erlaubt den Abruf der öffentlich verfügbaren Merkmale und Merkmalsgruppen ausgewählter Organisationen des BIM-Portals.
 
 
-[REST API Dokumentation](https://bimdeutschland.github.io/BIM-Portal-REST-API-Dokumentation/)  
+[REST-API-Dokumentation](https://bimdeutschland.github.io/BIM-Portal-REST-API-Dokumentation/)  
 
 Datenlizenz Deutschland – Zero – Version 2.0  
 [DL-DE->Zero-2.0](./LICENSE.md)
