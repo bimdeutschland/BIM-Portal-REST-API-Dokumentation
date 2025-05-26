@@ -31,7 +31,7 @@ paths:
                   type: string
       responses:
         "200":
-          description: Login erfolgreich, liefert Access und Refresh Token. description: Die Zeitangabe für die Gültigkeit des Tokens (validTill) erfolgt in lokaler deutscher Zeit (MEZ/MESZ).
+          description: Login erfolgreich, liefert Access und Refresh Token. Die Zeitangabe für die Gültigkeit des Tokens (validTill) erfolgt in lokaler deutscher Zeit (MEZ/MESZ).
           content:
             application/json:
               schema:
