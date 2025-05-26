@@ -16,6 +16,7 @@ paths:
       tags:
         - Infrastruktur
       summary: Benutzer Anmeldung
+      description: Die Zeitangabe für die Gültigkeit des Tokens (validTill) erfolgt in lokaler deutscher Zeit (MEZ/MESZ).
       requestBody:
         required: true
         content:
@@ -30,7 +31,7 @@ paths:
                   type: string
       responses:
         "200":
-          description: Login erfolgreich, liefert Access und Refresh Token.
+          description: Login erfolgreich, liefert Access und Refresh Token. description: Die Zeitangabe für die Gültigkeit des Tokens (validTill) erfolgt in lokaler deutscher Zeit (MEZ/MESZ).
           content:
             application/json:
               schema:
@@ -43,6 +44,8 @@ paths:
                   validTill:
                     type: string
                     format: date-time
+                    example: "2025-05-23T14:12:53.229244686"
+                    description: "Zeitpunkt bis zu dem der Token gültig ist, in lokaler deutscher Zeit (MEZ/MESZ) mit Nanosekunden-Genauigkeit"
   /infrastruktur/api/v1/public/auth/logout:
     post:
       tags:
@@ -59,7 +62,7 @@ paths:
       tags:
         - Infrastruktur
       summary: Aktualisierung des Autorisierungs-Token
-      description: Erfordert eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header.
+      description: Erfordert eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header. Die Zeitangabe für die Gültigkeit des Tokens (validTill) erfolgt in lokaler deutscher Zeit (MEZ/MESZ).
       requestBody:
         required: true
         content:
@@ -71,7 +74,7 @@ paths:
                   type: string
       responses:
         "200":
-          description: OK
+          description: Token erfolgreich aktualisiert. Die Zeitangabe für die Gültigkeit des Tokens (validTill) erfolgt in lokaler deutscher Zeit (MEZ/MESZ).
           content:
             application/json:
               schema:
@@ -82,6 +85,8 @@ paths:
                   validTill:
                     type: string
                     format: date-time
+                    example: "2025-05-23T14:12:53.229244686"
+                    description: "Zeitpunkt bis zu dem der Token gültig ist, in lokaler deutscher Zeit (MEZ/MESZ) mit Nanosekunden-Genauigkeit"
   /infrastruktur/api/v1/public/organisation:
     get:
       tags:
