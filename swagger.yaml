@@ -1,519 +1,287 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: BIM-Portal REST-API
-  description: >
-    Dies ist die Dokumentation der REST-Endpunkte, die sowohl
-    öffentliche als auch private Informationselemente abrufen können.
-    Authentifizierung ist für den Zugriff auf private Ressourcen erforderlich.
-    Die Endpunkte können auf dieser Seite getestet werden.
-  version: 0.0.2
+  description: >-
+    Dies ist die Dokumentation der REST-Endpunkte, die sowohl öffentliche als
+    auch private Informationselemente abrufen können. Authentifizierung ist für
+    den Zugriff auf private Ressourcen erforderlich. Die Endpunkte können auf
+    dieser Seite getestet werden.
+  version: 1.0.0
 servers:
-  - url: https://via.bund.de/bim
+  - url: 'https://via.bund.de/bim'
     description: Main (production) server
+security:
+  - bearerAuth: []
 paths:
-  /infrastruktur/api/v1/public/auth/login:
-    post:
-      tags:
-        - Infrastruktur
-      summary: Benutzer Anmeldung
-      description: Die Zeitangabe für die Gültigkeit des Tokens (validTill) erfolgt in lokaler deutscher Zeit (MEZ/MESZ).
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                mail:
-                  type: string
-                  format: email
-                password:
-                  type: string
-      responses:
-        "200":
-          description: Login erfolgreich, liefert Access und Refresh Token. Die Zeitangabe für die Gültigkeit des Tokens (validTill) erfolgt in lokaler deutscher Zeit (MEZ/MESZ).
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  accessToken:
-                    type: string
-                  refreshToken:
-                    type: string
-                  validTill:
-                    type: string
-                    format: date-time
-                    example: "2025-05-23T14:12:53.229244686"
-                    description: "Zeitpunkt bis zu dem der Token gültig ist, in lokaler deutscher Zeit (MEZ/MESZ) mit Nanosekunden-Genauigkeit"
-  /infrastruktur/api/v1/public/auth/logout:
-    post:
-      tags:
-        - Infrastruktur
-      summary: Benutzer Abmeldung
-      description: Erfordert eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header.
-      responses:
-        "200":
-          description: OK
-      security:
-        - bearerAuth: []    
   /infrastruktur/api/v1/public/auth/refresh:
     post:
       tags:
         - Infrastruktur
       summary: Aktualisierung des Autorisierungs-Token
-      description: Erfordert eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header. Die Zeitangabe für die Gültigkeit des Tokens (validTill) erfolgt in lokaler deutscher Zeit (MEZ/MESZ).
+      operationId: refreshToken
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                refreshToken:
-                  type: string
+              $ref: '#/components/schemas/RefreshTokenRequestDTO'
+        required: true
       responses:
-        "200":
-          description: Token erfolgreich aktualisiert. Die Zeitangabe für die Gültigkeit des Tokens (validTill) erfolgt in lokaler deutscher Zeit (MEZ/MESZ).
+        '200':
+          description: OK
           content:
-            application/json:
+            '*/*':
               schema:
-                type: object
-                properties:
-                  accessToken:
-                    type: string
-                  validTill:
-                    type: string
-                    format: date-time
-                    example: "2025-05-23T14:12:53.229244686"
-                    description: "Zeitpunkt bis zu dem der Token gültig ist, in lokaler deutscher Zeit (MEZ/MESZ) mit Nanosekunden-Genauigkeit"
+                $ref: '#/components/schemas/JWTTokenPublicDto'
+      security: []
+  /infrastruktur/api/v1/public/auth/logout:
+    post:
+      tags:
+        - Infrastruktur
+      summary: Benutzer abmelden
+      description: >-
+        Diese API erfordert eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header.
+      operationId: logout
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /infrastruktur/api/v1/public/auth/login:
+    post:
+      tags:
+        - Infrastruktur
+      summary: Anmeldung am System
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLoginPublicDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/JWTTokenPublicDto'
+      security: []
   /infrastruktur/api/v1/public/organisation:
     get:
       tags:
         - Infrastruktur
-      summary: Liste aller Organisationen
-      description: Liefert eine Liste alle konfigurierten Organisationen.
+      summary: Liste aller über die Rest-API nutzbaren Organisationen
+      operationId: getOrganisationsForPublic
       responses:
-        "200":
-          description: Liste der Organisationen erfolgreich abgerufen
+        '200':
+          description: Liste von Organisationen
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Organisation"
+                  $ref: '#/components/schemas/OrganisationForPublicDTO'
         '429':
           description: Zu viele gleichzeitige Serveranfragen.
+      security: []
   /infrastruktur/api/v1/public/organisation/my:
     get:
       tags:
         - Infrastruktur
-      summary: Alle konfigurierten Organisationen zurückliefern, in denen der Nutzer Mitglied ist.
-      description: Erfordert eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header.
+      summary: >-
+        Liste aller über die Rest-API nutzbaren Organisationen, in denen der Nutzer Mitglied ist.
+      description: >-
+        Diese API erfordert eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header.
+      operationId: getOrganisationsOfUser
       parameters:
-        - in: query
-          name: userId
+        - name: userId
+          in: query
           required: true
           schema:
             type: string
             format: uuid
       responses:
-        "200":
-          description: Details der eigenen Organisation erfolgreich abgerufen
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Organisation"
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen.
-      security:
-        - bearerAuth: []    
-  /merkmale/api/v1/public/filter:
-    get:
-      tags:
-        - Merkmale
-      summary: Liste aller globalen Merkmalsfiltergruppen
-      description: Liefert eine Liste aller globalen Merkmalsfiltergruppen, die über
-        die REST-API zugänglich sind.
-      responses:
-        "200":
-          description: Liste der Merkmalsfiltergruppen erfolgreich abgerufen
+        '200':
+          description: Liste von Organisationen
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Merkmalsfiltergruppe"
+                  $ref: '#/components/schemas/OrganisationForPublicDTO'
         '429':
           description: Zu viele gleichzeitige Serveranfragen.
-  /merkmale/api/v1/public/propertygroup/{guid}:
-    get:
-      tags:
-        - Merkmalsgruppen
-      summary: Liefert die Merkmalsgruppe mit der gesuchten GUID
-      description: Erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Merkmalsgruppen abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: Merkmalsgruppe erfolgreich abgerufen
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PropertyGroupDto"
-        "403":
-          description: Es besteht kein Recht, diese Merkmalsgruppe zu sehen.
-        "404":
-          description: Es existiert keine Merkmalsgruppe mit der GUID.
-        "429":
-          description: Zu viele gleichzeitige Serveranfragen.
-      security:
-        - bearerAuth: []    
-  /merkmale/api/v1/public/property/{guid}:
-    get:
-      tags:
-        - Merkmale
-      summary: Liefert das Merkmal mit der gesuchten GUID
-      description: Erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Merkmale abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        "200":
-          description: Ein Merkmal.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PropertyDto"
-        "403":
-          description: Es besteht kein Recht, dieses Merkmal zu sehen.
-        "404":
-          description: Es existiert kein Merkmal mit der GUID.
-        "429":
-          description: Zu viele gleichzeitige Serveranfragen.
-      security:
-        - bearerAuth: []    
-  /merkmale/api/v1/public/property:
-    post:
-      tags:
-        - Merkmale
-      summary: Liefert alle Merkmale, die zu den Suchparametern passen.
-      description: Erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Merkmale abrufen zu können.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PropertyOrGroupForPublicRequest"
-      responses:
-        "200":
-          description: Eine Liste von Merkmalen.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/PropertyOrGroupForPublicDto"
-        "429":
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []    
   /merkmale/api/v1/public/propertygroup:
     post:
       tags:
         - Merkmalsgruppen
-      summary: Liefert alle Merkmalsgruppen, die zu den Suchparametern passen.
-      description: Erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Merkmalsgruppen abrufen zu können.
+      summary: 'Liefert alle Merkmalsgruppen, die zu den Suchparametern passen'
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Merkmalsgruppen abrufen zu können.
+      operationId: getProperyGroupsForPublic
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PropertyOrGroupForPublicRequest"
+              $ref: '#/components/schemas/PropertyOrGroupForPublicRequest'
       responses:
-        "200":
+        '200':
           description: Eine Liste von Merkmalsgruppen
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/PropertyOrGroupForPublicDto"
-        "429":
+                  $ref: '#/components/schemas/PropertyOrGroupForPublicDto'
+        '429':
           description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []    
-  /aia/api/v1/public/filter:
-    get:
+  /merkmale/api/v1/public/property:
+    post:
       tags:
-        - AIA-Filter
-      summary: Liefert alle globalen Filter zurück
-      description: Liefert ein JSON-Array mit AIA-Filtergruppen, einschließlich einer
-        Liste einzelner Filter.
+        - Merkmale
+      summary: 'Liefert alle Merkmale, die zu den Suchparametern passen'
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Merkmale abrufen zu können.
+      operationId: getPropertiesForPublic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PropertyOrGroupForPublicRequest'
       responses:
-        "200":
-          description: Der Response Body dieser Anfrage liefert ein Json-Array mit
-            AIA-Filtergruppen.
+        '200':
+          description: Eine Liste von Merkmalen.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/FilterGroupForPublicDto"
-        "429":
+                  $ref: '#/components/schemas/PropertyOrGroupForPublicDto'
+        '429':
           description: Zu viele gleichzeitige Serveranfragen
-  /aia/api/v1/public/loin/{guid}:
+  '/merkmale/api/v1/public/propertygroup/{guid}':
     get:
       tags:
-        - AIA-LOIN
-      summary: Liefert die LOIN mit der gesuchten GUID
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
+        - Merkmalsgruppen
+      summary: Liefert die Merkmalsgruppe mit der gesuchten GUID
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Merkmalsgruppen abrufen zu können.
+      operationId: getPropertyGroupForPublic
       parameters:
-        - in: path
-          name: guid
+        - name: guid
+          in: path
           required: true
           schema:
             type: string
             format: uuid
       responses:
-        "200":
-          description: Der Response Body liefert die Details des angeforderten LOIN.
+        '200':
+          description: Eine Merkmalsgruppe
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LOINPublicDto"
+                $ref: '#/components/schemas/PropertyGroupDto'
         '403':
-          description: Es besteht kein Recht, diese LOIN zu sehen.
+          description: 'Es besteht kein Recht, diese Merkmalsgruppe zu sehen.'
         '404':
-          description: Es existiert keine LOIN mit der GUID.
+          description: Es existiert keine Merkmalsgruppe mit der GUID.
         '429':
           description: Zu viele gleichzeitige Serveranfragen.
-      security:
-        - bearerAuth: []    
+  '/merkmale/api/v1/public/property/{guid}':
+    get:
+      tags:
+        - Merkmale
+      summary: Liefert das Merkmal mit der gesuchten GUID
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Merkmale abrufen zu können.
+      operationId: getPropertyForPublic
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ein Merkmal.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyDto'
+        '403':
+          description: 'Es besteht kein Recht, dieses Merkmal zu sehen.'
+        '404':
+          description: Es existiert kein Merkmal mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen.
+  /merkmale/api/v1/public/filter:
+    get:
+      tags:
+        - Merkmale
+      summary: Liefert alle globalen Filter zurück
+      operationId: getGlobalFilters
+      responses:
+        '200':
+          description: Liste von Filtern.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TagGroupForPublicDto'
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen.
+      security: []
   /aia/api/v1/public/loin:
     post:
       tags:
         - AIA-LOIN
-      summary: Liefert alle LOINs, die zu den Suchparametern passen
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
+      summary: 'Liefert alle LOINs, die zu den Suchparametern passen'
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: getLoinsForPublic
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LoinForPublicRequest"
+              $ref: '#/components/schemas/LoinForPublicRequest'
         required: true
       responses:
-        "200":
+        '200':
           description: Eine Liste von LOINs.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/SimpleLoinPublicDto"
-        "429":
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/loin/{guid}/pdf:
-    get:
-      tags:
-        - AIA-LOIN
-      summary: Liefert die LOIN mit der übergebenen GUID im PDF-Format zurück
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Eine LOIN im PDF-Format.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, diese LOIN zu sehen.
-        '404':
-          description: Es existiert keine LOIN mit der GUID.
+                  $ref: '#/components/schemas/SimpleLoinPublicDto'
         '429':
           description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/loin/{guid}/openOffice:
-    get:
-      tags:
-        - AIA-LOIN
-      summary: Liefert die LOIN mit der übergebenen GUID im OpenOffice-Format zurück
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Eine LOIN im ODT-Format.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, diese LOIN zu sehen.
-        '404':
-          description: Es existiert keine LOIN mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/loin/{guid}/ifcXML:
-    get:
-      tags:
-        - AIA-LOIN
-      summary: Liefert eine ifcXML-Datei zurück, die mit der LOIN assoziiert ist, zurück.
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Eine LOIN im ifcXML-Format.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, diese LOIN zu sehen.
-        '404':
-          description: Es existiert keine LOIN mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []    
-  /aia/api/v1/public/loin/{guid}/mvdXML:
-    get:
-      tags:
-        - AIA-LOIN
-      summary: Liefert eine mvdXML-Datei, die mit der LOIN assoziiert ist, zurück.
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Eine LOIN im mvdXML-Format.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, diese LOIN zu sehen.
-        '404':
-          description: Es existiert keine LOIN mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/loin/{guid}/loinXML:
-    get:
-      tags:
-        - AIA-LOIN
-      summary: Liefert die LOIN als XML-Datei im LOIN XSD-Format zurück
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Eine LOIN im XML-Format.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, diese LOIN zu sehen.
-        '404':
-          description: Es existiert keine LOIN mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/loin/{guid}/okstra:
-    get:
-      tags:
-        - AIA-LOIN
-      summary: Liefert eine .zip-Datei mit allen Okstra-Dateien, die mit der LOIN assoziiert sind, zurück.
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Okstra-Dateien, die mit der LOIN assoziiert sind.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, diese LOIN zu sehen.
-        '404':
-          description: Es existiert keine LOIN mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
   /aia/api/v1/public/domainSpecificModel:
     post:
       tags:
-        - Domain Specific Model
-      summary: Liefert alle Fachmodelle, die zu den Suchparametern passen
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
+        - Fachmodelle
+      summary: 'Liefert alle Fachmodelle, die zu den Suchparametern passen'
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: getDomainSpecificModelsForPublic
       requestBody:
         content:
           application/json:
@@ -531,228 +299,16 @@ paths:
                   $ref: '#/components/schemas/SimpleDomainSpecificModelPublicDto'
         '429':
           description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []    
-  /aia/api/v1/public/domainSpecificModel/{guid}:
-    get:
-      tags:
-        - Domain Specific Model
-      summary: Liefert das Fachmodell mit der gesuchten GUID
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Ein Fachmodell.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AIADomainSpecificModelPublicDto'
-        '403':
-          description: Es besteht kein Recht, dieses Fachmodell zu sehen.
-        '404':
-          description: Es existiert kein Fachmodell mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen.
-      security:
-        - bearerAuth: []    
-  /aia/api/v1/public/domainSpecificModel/{guid}/pdf:
-    get:
-      tags:
-        - Domain Specific Model
-      summary: Liefert das Fachmodell mit der übergebenen GUID im PDF-Format zurück
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Ein Fachmodell im PDF-Format.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, dieses Fachmodell zu sehen.
-        '404':
-          description: Es existiert kein Fachmodell mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []       
-  /aia/api/v1/public/domainSpecificModel/{guid}/openOffice:
-    get:
-      tags:
-        - Domain Specific Model
-      summary: Liefert das Fachmodell mit der übergebenen GUID im OpenOffice-Format zurück
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Ein Fachmodell im ODT-Format.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, dieses Fachmodell zu sehen.
-        '404':
-          description: Es existiert kein Fachmodell mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/domainSpecificModel/{guid}/ifcXML:
-    get:
-      tags:
-        - Domain Specific Model
-      summary: Liefert eine .zip-Datei mit allen ifcXML-Dateien, die mit dem Fachmodell assoziiert sind, zurück.
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: ifcXML-Dateien, die mit dem Fachmodell assoziiert sind.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, dieses Fachmodell zu sehen.
-        '404':
-          description: Es existiert kein Fachmodell mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/domainSpecificModel/{guid}/mvdXML:
-    get:
-      tags:
-        - Domain Specific Model
-      summary: Liefert eine .zip-Datei mit allen mvdXML-Dateien, die mit dem Fachmodell assoziiert sind, zurück.
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: mvdXML-Dateien, die mit dem Fachmodell assoziiert sind.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, dieses Fachmodell zu sehen.
-        '404':
-          description: Es existiert kein Fachmodell mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/domainSpecificModel/{guid}/loinXML:
-    get:
-      tags:
-        - Domain Specific Model
-      summary: Liefert eine .zip-Datei mit allen LOIN-XML-Dateien, die mit dem Fachmodell assoziiert sind, zurück.
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: LOIN-XML-Dateien, die mit dem Fachmodell assoziiert sind.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, dieses Fachmodell zu sehen.
-        '404':
-          description: Es existiert kein Fachmodell mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/domainSpecificModel/{guid}/okstra:
-    get:
-      tags:
-        - Domain Specific Model
-      summary: Liefert eine .zip-Datei mit allen Okstra-Dateien, die mit dem Fachmodell assoziiert sind, zurück.
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Okstra-Dateien, die mit dem Fachmodell assoziiert sind.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, dieses Fachmodell zu sehen.
-        '404':
-          description: Es existiert kein Fachmodell mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
   /aia/api/v1/public/contextInfo:
     post:
       tags:
-        - Context Information
-      summary: Liefert alle Kontextinformationen, die zu den Suchparametern passen
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
+        - Kontextinformationen
+      summary: 'Liefert alle Kontextinformationen, die zu den Suchparametern passen'
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: getContextInfosForPublic
       requestBody:
         content:
           application/json:
@@ -770,343 +326,16 @@ paths:
                   $ref: '#/components/schemas/SimpleContextInfoPublicDto'
         '429':
           description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []    
-  /aia/api/v1/public/contextInfo/{guid}:
-    get:
-      tags:
-        - Context Information
-      summary: Liefert die Kontextinformation mit der gesuchten GUID
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Eine Kontextinformation.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AIAContextInfoPublicDto'
-        '403':
-          description: Es besteht kein Recht, diese Kontextinformation zu sehen.
-        '404':
-          description: Es existiert keine Kontextinformation mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen.
-      security:
-        - bearerAuth: []    
-  /aia/api/v1/public/contextInfo/{guid}/pdf:
-    get:
-      tags:
-        - Context Information
-      summary: Liefert die Kontextinformation mit der übergebenen GUID im PDF-Format zurück
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Eine Vorlage im PDF-Format.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, diese Vorlage zu sehen.
-        '404':
-          description: Es existiert keine Vorlage mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/contextInfo/{guid}/openOffice:
-    get:
-      tags:
-        - Context Information
-      summary: Liefert die Kontextinformation mit der übergebenen GUID im OpenOffice-Format zurück
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Eine Vorlage im ODT-Format.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, diese Vorlage zu sehen.
-        '404':
-          description: Es existiert keine Vorlage mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/aiaProject:
-    post:
-      tags:
-        - AIA Project
-      summary: Liefert alle Projekte, die zu den Suchparametern passen
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AiaProjectForPublicRequest'
-        required: true
-      responses:
-        '200':
-          description: Eine Liste von Projekten.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SimpleAiaProjectPublicDto'
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/aiaProject/{guid}:
-    get:
-      tags:
-        - AIA Project
-      summary: Liefert das Projekt mit der gesuchten GUID
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Ein Projekt.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AIAProjectPublicDto'
-        '403':
-          description: Es besteht kein Recht, dieses Projekt zu sehen.
-        '404':
-          description: Es existiert kein Projekt mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen.
-      security:
-        - bearerAuth: []    
-  /aia/api/v1/public/aiaProject/{guid}/pdf:
-    get:
-      tags:
-        - AIA Project
-      summary: Liefert das Projekt mit der übergebenen GUID im PDF-Format zurück
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Ein Projekt im PDF-Format.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, dieses Projekt zu sehen.
-        '404':
-          description: Es existiert kein Projekt mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []    
-  /aia/api/v1/public/aiaProject/{guid}/openOffice:
-    get:
-      tags:
-        - AIA Project
-      summary: Liefert das Projekt mit der übergebenen GUID im OpenOffice-Format zurück
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Ein Projekt im ODT-Format.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, dieses Projekt zu sehen.
-        '404':
-          description: Es existiert kein Projekt mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/aiaProject/{guid}/ifcXML:
-    get:
-      tags:
-        - AIA Project
-      summary: Liefert eine .zip-Datei mit allen ifcXML-Dateien, die mit dem Projekt assoziiert sind, zurück.
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: ifcXML-Dateien, die mit dem Projekt assoziiert sind.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, dieses Projekt zu sehen.
-        '404':
-          description: Es existiert kein Projekt mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/aiaProject/{guid}/mvdXML:
-    get:
-      tags:
-        - AIA Project
-      summary: Liefert eine .zip-Datei mit allen mvdXML-Dateien, die mit dem Projekt assoziiert sind, zurück.
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: mvdXML-Dateien, die mit dem Projekt assoziiert sind.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, dieses Projekt zu sehen.
-        '404':
-          description: Es existiert kein Projekt mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/aiaProject/{guid}/loinXML:
-    get:
-      tags:
-        - AIA Project
-      summary: Liefert eine .zip-Datei mit allen LOIN-XML-Dateien, die mit dem Projekt assoziiert sind, zurück.
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: LOIN-XML-Dateien, die mit dem Projekt assoziiert sind.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, dieses Projekt zu sehen.
-        '404':
-          description: Es existiert kein Projekt mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/aiaProject/{guid}/okstra:
-    get:
-      tags:
-        - AIA Project
-      summary: Liefert eine .zip-Datei mit allen Okstra-Dateien, die mit dem Projekt assoziiert sind, zurück.
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
-      parameters:
-        - in: path
-          name: guid
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: Okstra-Dateien, die mit dem Projekt assoziiert sind.
-          content:
-            '*/*':
-              schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
-        '403':
-          description: Es besteht kein Recht, dieses Projekt zu sehen.
-        '404':
-          description: Es existiert kein Projekt mit der GUID.
-        '429':
-          description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
   /aia/api/v1/public/aiaTemplate:
     post:
       tags:
-        - AIA Template
-      summary: Liefert alle Vorlagen, die zu den Suchparametern passen
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können
+        - AIA-Vorlagen
+      summary: 'Liefert alle Vorlagen, die zu den Suchparametern passen'
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: getTemplatesForPublic
       requestBody:
         content:
           application/json:
@@ -1124,17 +353,538 @@ paths:
                   $ref: '#/components/schemas/SimpleAiaTemplatePublicDto'
         '429':
           description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []     
-  /aia/api/v1/public/aiaTemplate/{guid}:
+  /aia/api/v1/public/aiaProject:
+    post:
+      tags:
+        - AIA-Projekte
+      summary: 'Liefert alle Projekte, die zu den Suchparametern passen'
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: getProjectsForPublic
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AiaProjectForPublicRequest'
+        required: true
+      responses:
+        '200':
+          description: Eine Liste von Projekten.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SimpleAiaProjectPublicDto'
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/loin/{guid}':
     get:
       tags:
-        - AIA Template
-      summary: Liefert die Vorlage mit der gesuchten GUID
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
+        - AIA-LOIN
+      summary: Liefert die LOIN mit der gesuchten GUID
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: getLoinForPublic
       parameters:
-        - in: path
-          name: guid
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Eine LOIN.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LOINPublicDto'
+        '403':
+          description: 'Es besteht kein Recht, diese LOIN zu sehen.'
+        '404':
+          description: Es existiert keine LOIN mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen.
+  '/aia/api/v1/public/loin/{guid}/pdf':
+    get:
+      tags:
+        - AIA-LOIN
+      summary: Liefert die LOIN mit der übergebenen GUID im PDF-Format zurück
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportPdf
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Eine LOIN im PDF-Format.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, diese LOIN zu sehen.'
+        '404':
+          description: Es existiert keine LOIN mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/loin/{guid}/openOffice':
+    get:
+      tags:
+        - AIA-LOIN
+      summary: Liefert die LOIN mit der übergebenen GUID im OpenOffice-Format zurück
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportOdt
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Eine LOIN im ODT-Format.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, diese LOIN zu sehen.'
+        '404':
+          description: Es existiert keine LOIN mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/loin/{guid}/okstra':
+    get:
+      tags:
+        - AIA-LOIN
+      summary: >-
+        Liefert eine .zip-Datei mit allen Okstra-Dateien, die mit der LOIN
+        assoziiert sind, zurück.
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportOkstra
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'Okstra-Dateien, die mit der LOIN assoziiert sind.'
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, diese LOIN zu sehen.'
+        '404':
+          description: Es existiert keine LOIN mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/loin/{guid}/loinXML':
+    get:
+      tags:
+        - AIA-LOIN
+      summary: Liefert die LOIN als XML-Datei im LOIN-XML-Format zurück
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportXml
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Eine LOIN im XML-Format.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, diese LOIN zu sehen.'
+        '404':
+          description: Es existiert keine LOIN mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/loin/{guid}/IDS':
+    get:
+      tags:
+        - AIA-LOIN
+      summary: Liefert die LOIN als XML-Datei im IDS-XML-Format zurück
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportIds
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'IDS-Dateien, die mit der LOIN assoziiert sind.'
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, diese LOIN zu sehen.'
+        '404':
+          description: Es existiert keine LOIN mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  /aia/api/v1/public/filter:
+    get:
+      tags:
+        - AIA-Filter
+      summary: Liefert alle globalen Filter zurück
+      operationId: getGlobalFilters1
+      responses:
+        '200':
+          description: Liste von Filtern.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FilterGroupForPublicDto'
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen.
+      security: []
+  '/aia/api/v1/public/domainSpecificModel/{guid}':
+    get:
+      tags:
+        - Fachmodelle
+      summary: Liefert das Fachmodell mit der gesuchten GUID
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: getDomainSpecificModelForPublic
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ein Fachmodell.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIADomainSpecificModelPublicDto'
+        '403':
+          description: 'Es besteht kein Recht, dieses Fachmodell zu sehen.'
+        '404':
+          description: Es existiert kein Fachmodell mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen.
+  '/aia/api/v1/public/domainSpecificModel/{guid}/pdf':
+    get:
+      tags:
+        - Fachmodelle
+      summary: Liefert das Fachmodell mit der übergebenen GUID im PDF-Format zurück
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportPdf_1
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ein Fachmodell im PDF-Format.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, dieses Fachmodell zu sehen.'
+        '404':
+          description: Es existiert kein Fachmodell mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/domainSpecificModel/{guid}/openOffice':
+    get:
+      tags:
+        - Fachmodelle
+      summary: >-
+        Liefert das Fachmodell mit der übergebenen GUID im OpenOffice-Format
+        zurück
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportOdt_1
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ein Fachmodell im ODT-Format.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, dieses Fachmodell zu sehen.'
+        '404':
+          description: Es existiert kein Fachmodell mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/domainSpecificModel/{guid}/okstra':
+    get:
+      tags:
+        - Fachmodelle
+      summary: >-
+        Liefert eine .zip-Datei mit allen Okstra-Dateien, die mit dem Fachmodell
+        assoziiert sind, zurück.
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportOkstra_1
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'Okstra-Dateien, die mit dem Fachmodell assoziiert sind.'
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, dieses Fachmodell zu sehen.'
+        '404':
+          description: Es existiert kein Fachmodell mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/domainSpecificModel/{guid}/loinXML':
+    get:
+      tags:
+        - Fachmodelle
+      summary: >-
+        Liefert eine .zip-Datei mit allen LOIN-XML-Dateien, die mit dem
+        Fachmodell assoziiert sind, zurück.
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportXml_1
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'LOIN-XML-Dateien, die mit dem Fachmodell assoziiert sind.'
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, dieses Fachmodell zu sehen.'
+        '404':
+          description: Es existiert kein Fachmodell mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/domainSpecificModel/{guid}/IDS':
+    get:
+      tags:
+        - Fachmodelle
+      summary: Liefert das Fachmodell als XML-Datei im IDS-Format zurück.
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportIds_1
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'IDS-Dateien, die mit dem Fachmodell assoziiert sind.'
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, dieses Fachmodell zu sehen.'
+        '404':
+          description: Es existiert kein Fachmodell mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/contextInfo/{guid}':
+    get:
+      tags:
+        - Kontextinformationen
+      summary: Liefert die Kontextinformation mit der gesuchten GUID
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: getContextInfoForPublic
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Eine Kontextinformation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAContextInfoPublicDto'
+        '403':
+          description: 'Es besteht kein Recht, diese Kontextinformation zu sehen.'
+        '404':
+          description: Es existiert keine Kontextinformation mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen.
+  '/aia/api/v1/public/contextInfo/{guid}/pdf':
+    get:
+      tags:
+        - Kontextinformationen
+      summary: >-
+        Liefert die Kontextinformation mit der übergebenen GUID im PDF-Format
+        zurück
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportPdf_2
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Eine Kontextinformation im PDF-Format.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, diese Kontextinformation zu sehen.'
+        '404':
+          description: Es existiert keine Kontextinformation mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/contextInfo/{guid}/openOffice':
+    get:
+      tags:
+        - Kontextinformationen
+      summary: >-
+        Liefert die Kontextinformation mit der übergebenen GUID im
+        OpenOffice-Format zurück
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportOdt_2
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Eine Kontextinformation im ODT-Format.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, diese Kontextinformation zu sehen.'
+        '404':
+          description: Es existiert keine Kontextinformation mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/aiaTemplate/{guid}':
+    get:
+      tags:
+        - AIA-Vorlagen
+      summary: Liefert die Vorlage mit der gesuchten GUID
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: getTemplateForPublic
+      parameters:
+        - name: guid
+          in: path
           required: true
           schema:
             type: string
@@ -1147,22 +897,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/AIATemplatePublicDto'
         '403':
-          description: Es besteht kein Recht, diese Vorlage zu sehen.
+          description: 'Es besteht kein Recht, diese Vorlage zu sehen.'
         '404':
           description: Es existiert keine Vorlage mit der GUID.
         '429':
           description: Zu viele gleichzeitige Serveranfragen.
-      security:
-        - bearerAuth: []    
-  /aia/api/v1/public/aiaTemplate/{guid}/pdf:
+  '/aia/api/v1/public/aiaTemplate/{guid}/pdf':
     get:
       tags:
-        - AIA Template
+        - AIA-Vorlagen
       summary: Liefert die Vorlage mit der übergebenen GUID im PDF-Format zurück
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportPdf_3
       parameters:
-        - in: path
-          name: guid
+        - name: guid
+          in: path
           required: true
           schema:
             type: string
@@ -1173,27 +925,27 @@ paths:
           content:
             '*/*':
               schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
+                type: string
+                format: byte
         '403':
-          description: Es besteht kein Recht, diese Vorlage zu sehen.
+          description: 'Es besteht kein Recht, diese Vorlage zu sehen.'
         '404':
           description: Es existiert keine Vorlage mit der GUID.
         '429':
           description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []    
-  /aia/api/v1/public/aiaTemplate/{guid}/openOffice:
+  '/aia/api/v1/public/aiaTemplate/{guid}/openOffice':
     get:
       tags:
-        - AIA Template
+        - AIA-Vorlagen
       summary: Liefert die Vorlage mit der übergebenen GUID im OpenOffice-Format zurück
-      description: Diese API erlaubt optional eine Authentifizierung mittels 'Bearer {accessToken}' über den Authorization-Header, um nicht öffentlich sichtbare Informationselemente abrufen zu können.
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportOdt_3
       parameters:
-        - in: path
-          name: guid
+        - name: guid
+          in: path
           required: true
           schema:
             type: string
@@ -1204,77 +956,557 @@ paths:
           content:
             '*/*':
               schema:
-                type: array
-                items:
-                  type: string
-                  format: byte
+                type: string
+                format: byte
         '403':
-          description: Es besteht kein Recht, diese Vorlage zu sehen.
+          description: 'Es besteht kein Recht, diese Vorlage zu sehen.'
         '404':
           description: Es existiert keine Vorlage mit der GUID.
         '429':
           description: Zu viele gleichzeitige Serveranfragen
-      security:
-        - bearerAuth: []    
+  '/aia/api/v1/public/aiaProject/{guid}':
+    get:
+      tags:
+        - AIA-Projekte
+      summary: Liefert das Projekt mit der gesuchten GUID
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: getProjectForPublic
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ein Projekt.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIAProjectPublicDto'
+        '403':
+          description: 'Es besteht kein Recht, dieses Projekt zu sehen.'
+        '404':
+          description: Es existiert kein Projekt mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen.
+  '/aia/api/v1/public/aiaProject/{guid}/pdf':
+    get:
+      tags:
+        - AIA-Projekte
+      summary: Liefert das Projekt mit der übergebenen GUID im PDF-Format zurück
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportPdf_4
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ein Projekt im PDF-Format.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, dieses Projekt zu sehen.'
+        '404':
+          description: Es existiert kein Projekt mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/aiaProject/{guid}/openOffice':
+    get:
+      tags:
+        - AIA-Projekte
+      summary: Liefert das Projekt mit der übergebenen GUID im OpenOffice-Format zurück
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportOdt_4
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Ein Projekt im ODT-Format.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, dieses Projekt zu sehen.'
+        '404':
+          description: Es existiert kein Projekt mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/aiaProject/{guid}/okstra':
+    get:
+      tags:
+        - AIA-Projekte
+      summary: >-
+        Liefert eine .zip-Datei mit allen Okstra-Dateien, die mit dem Projekt
+        assoziiert sind, zurück.
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportOkstra_2
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'Okstra-Dateien, die mit dem Projekt assoziiert sind.'
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, dieses Projekt zu sehen.'
+        '404':
+          description: Es existiert kein Projekt mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/aiaProject/{guid}/loinXML':
+    get:
+      tags:
+        - AIA-Projekte
+      summary: >-
+        Liefert eine .zip-Datei mit allen LOIN-XML-Dateien, die mit dem Projekt
+        assoziiert sind, zurück.
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportXml_2
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'LOIN-XML-Dateien, die mit dem Projekt assoziiert sind.'
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, dieses Projekt zu sehen.'
+        '404':
+          description: Es existiert kein Projekt mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
+  '/aia/api/v1/public/aiaProject/{guid}/IDS':
+    get:
+      tags:
+        - AIA-Projekte
+      summary: Liefert das AIA-P als XML-Datei im IDS-Format zurück.
+      description: >-
+        Diese API erlaubt optional eine Authentifizierung mittels 'Bearer
+        {accessToken}' über den Authorization-Header, um nicht öffentlich
+        sichtbare Informationselemente abrufen zu können.
+      operationId: exportIds_2
+      parameters:
+        - name: guid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 'IDS-Dateien, die mit dem Projekt assoziiert sind.'
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
+        '403':
+          description: 'Es besteht kein Recht, dieses Projekt zu sehen.'
+        '404':
+          description: Es existiert kein Projekt mit der GUID.
+        '429':
+          description: Zu viele gleichzeitige Serveranfragen
 components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
   schemas:
-    Organisation:
+    RefreshTokenRequestDTO:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+    JWTTokenPublicDto:
+      type: object
+      properties:
+        token:
+          type: string
+        refreshToken:
+          type: string
+        validTill:
+          type: string
+          format: date-time
+    UserLoginPublicDto:
+      type: object
+      properties:
+        mail:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          minLength: 1
+      required:
+        - mail
+        - password
+    OrganisationForPublicDTO:
       type: object
       properties:
         name:
-          description: Name der Organisation
-          example: Pflegestelle Bund
           type: string
         description:
-          description: Beschreibung der Organisation
-          example: Organisation fÃ¼r die Koordinierungsstelle Bund
-          type: string
-        guid:
-          description: Global eindeutiger Identifikator der Organisation
-          example: ee6a7af7-650d-499b-8e32-58a52ffdb7bc
-          type: string
-        parentGuid:
-          description: Global eindeutiger Identifikator der Elternorganisation des
-            Organisationsobjekts
-          example: 1f1426b8-099e-46cb-b668-6d931bf29d8c
-          type: string
-        bundOrganisationOrChild:
-          description: Ein Wahrheitswert der angibt, ob es sich bei dieser Organisation um
-            die Pflegestelle Bund oder um eine Kindorganisation der Pflegestelle
-            handelt.
-          example: true
-          type: boolean
-    Merkmalsfiltergruppe:
-      required:
-        - guid
-        - name
-      type: object
-      properties:
-        name:
           type: string
         guid:
           type: string
           format: uuid
-        filter:
+        parentGuid:
+          type: string
+          format: uuid
+        bundOrganisationOrChild:
+          type: boolean
+    PropertyOrGroupForPublicRequest:
+      type: object
+      properties:
+        organisationGuids:
           type: array
+          description: >-
+            GUIDs der Organisationen, denen die Merkmale oder Gruppen angehören
+            müssen
           items:
-            $ref: "#/components/schemas/TagForPublicDto"
-    TagForPublicDto:
-      required:
-        - guid
-        - name
+            type: string
+            format: uuid
+          uniqueItems: true
+        searchString:
+          type: string
+          description: >-
+            Teilstring, den die Namen der zu liefernden Merkmale und Gruppen
+            beinhalten müssen
+        filterGuids:
+          type: array
+          description: >-
+            GUIDs der Filter, die die zu liefernden Merkmale und Gruppen
+            besitzen müssen
+          items:
+            type: string
+            format: uuid
+        parentGuid:
+          type: string
+          format: uuid
+          description: >-
+            GUID der Gruppe, in der die zu liefernden Merkmale und Gruppen
+            enthalten sein müssen
+        includeDeprecated:
+          type: boolean
+          description: >-
+            true, wenn auch veraltete Merkmale und Gruppen mitgeliefert werden
+            sollen
+        pageNumber:
+          type: integer
+          format: int32
+          description: Laufende Nummer der Ergebnisseite
+    PropertyOrGroupCatalogInformation:
+      type: object
+      properties:
+        catalogName:
+          type: string
+        catalogUrl:
+          type: string
+        catalogProvider:
+          type: string
+        infoElementUrl:
+          type: string
+    PropertyOrGroupForPublicDto:
       type: object
       properties:
         name:
           type: string
+        definition:
+          type: string
         guid:
           type: string
-          format: uuid        
+          format: uuid
+        versionNumber:
+          type: integer
+          format: int64
+        revisionNumber:
+          type: integer
+          format: int64
+        parentGuids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        organisationName:
+          type: string
+        dataType:
+          type: string
+        units:
+          type: array
+          items:
+            type: string
+        category:
+          type: string
+          enum:
+            - ALTERNATIVE_USE
+            - CLASS
+            - COMPOSED_PROPERTY
+            - DOMAIN
+            - REFERENCE_DOCUMENT
+            - NAME_PROPERTY_SET
+        deprecated:
+          type: boolean
+        currentPage:
+          type: integer
+          format: int32
+        maxPage:
+          type: integer
+          format: int32
+        catalogInformation:
+          $ref: '#/components/schemas/PropertyOrGroupCatalogInformation'
+    BimPortalMetadata:
+      type: object
+      properties:
+        status:
+          type: string
+          deprecated: true
+          enum:
+            - INITIAL
+            - PROPOSED
+            - CREATION
+            - REVIEW
+            - VALIDATION
+            - ACCEPTED
+            - PUBLISHED
+            - DEPRECATED
+            - SORTED_OUT
+            - REJECTED
+        visibility:
+          type: string
+          enum:
+            - PUBLIC
+            - SECURED
+            - CHILD
+            - PRIVATE
+        external:
+          type: boolean
+        organisationId:
+          type: string
+          format: uuid
+        transferred:
+          type: boolean
+        nextState:
+          type: string
+          enum:
+            - PROPOSE
+            - ACCEPT
+            - SUBMIT_FOR_REVIEW
+            - SUBMIT_FOR_VALIDATION
+            - VALIDATED
+            - PUBLISH
+            - DEPRECATE
+            - SORT_OUT
+            - REJECT
+            - RESTORE
+            - EXTEND
+            - CREATE
+            - IMPORT
+          writeOnly: true
+      required:
+        - organisationId
+    BookmarkStatus:
+      type: object
+      properties:
+        bookmarkId:
+          type: string
+          format: uuid
+    BoundaryValues:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          format: int64
+        createdDate:
+          type: string
+          format: date-time
+        boundaryValuePairs:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        unit:
+          type: string
+          minLength: 1
+      required:
+        - boundaryValuePairs
+        - unit
+    CountryLanguageCode:
+      type: object
+      properties:
+        code:
+          type: string
+        language:
+          type: string
+        country:
+          type: string
+    DefinitionsInLanguageDto:
+      type: object
+      properties:
+        definition:
+          type: string
+        language:
+          type: string
+        value:
+          type: string
+    DescriptionsInLanguageDto:
+      type: object
+      properties:
+        description:
+          type: string
+        language:
+          type: string
+        languageName:
+          type: string
+        countryName:
+          type: string
+    DigitalFormat:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          format: int64
+        createdDate:
+          type: string
+          format: date-time
+        precision:
+          type: string
+        unitOfMeasure:
+          type: string
+          minLength: 1
+      required:
+        - precision
+        - unitOfMeasure
+    ExamplesInLanguageDto:
+      type: object
+      properties:
+        example:
+          type: string
+        language:
+          type: string
+        languageName:
+          type: string
+        countryName:
+          type: string
+    ListOfPossibleValuesInLanguageDto:
+      type: object
+      properties:
+        possibleValue:
+          type: string
+        language:
+          type: string
+        value:
+          type: string
+    NamesInLanguage:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          format: int64
+        createdDate:
+          type: string
+          format: date-time
+        name:
+          type: string
+          minLength: 1
+        language:
+          type: string
+          minLength: 1
+        value:
+          type: string
+      required:
+        - language
+        - name
+    NamesInLanguageDto:
+      type: object
+      properties:
+        name:
+          type: string
+        language:
+          type: string
+        languageName:
+          type: string
+        countryName:
+          type: string
+        value:
+          type: string
+    ObservationStatus:
+      type: object
+      properties:
+        observationId:
+          type: string
+          format: uuid
+    PhysicalQuantity:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          format: int64
+        createdDate:
+          type: string
+          format: date-time
+        siUnit:
+          type: string
+          minLength: 1
+        language:
+          type: string
+          minLength: 1
+      required:
+        - language
+        - siUnit
     PropertyDto:
       type: object
       properties:
@@ -1324,48 +1556,50 @@ components:
         replaces:
           type: array
           items:
-            $ref: "#/components/schemas/PropertyOrGroupWithNamesInLanguage"
+            $ref: '#/components/schemas/PropertyOrGroupWithNamesInLanguage'
         replacedBy:
           type: array
           items:
-            $ref: "#/components/schemas/PropertyOrGroupWithNamesInLanguage"
+            $ref: '#/components/schemas/PropertyOrGroupWithNamesInLanguage'
         deprecationExplanation:
           type: string
         relationOfThePropertyIdentifiersInTheInterconnectedDictionaries:
           type: array
           items:
-            $ref: "#/components/schemas/RelationOfThePropertyIdentifiersInTheInterconnected\
-              DictionariesDto"
+            $ref: >-
+              #/components/schemas/RelationOfThePropertyIdentifiersInTheInterconnectedDictionaries
+        catalogInformation:
+          $ref: '#/components/schemas/PropertyOrGroupCatalogInformation'
         creatorsLanguage:
-          $ref: "#/components/schemas/CountryLanguageCode"
+          $ref: '#/components/schemas/CountryLanguageCode'
         namesInLanguage:
           type: array
           items:
-            $ref: "#/components/schemas/NamesInLanguageDto"
+            $ref: '#/components/schemas/NamesInLanguageDto'
         definitionsInLanguage:
           type: array
           items:
-            $ref: "#/components/schemas/DefinitionsInLanguageDto"
+            $ref: '#/components/schemas/DefinitionsInLanguageDto'
         descriptionsInLanguage:
           type: array
           items:
-            $ref: "#/components/schemas/DescriptionsInLanguageDto"
+            $ref: '#/components/schemas/DescriptionsInLanguageDto'
         examplesInLanguage:
           type: array
           items:
-            $ref: "#/components/schemas/ExamplesInLanguageDto"
+            $ref: '#/components/schemas/ExamplesInLanguageDto'
         connectedProperties:
           type: array
           items:
-            $ref: "#/components/schemas/PropertyOrGroupWithNamesInLanguage"
+            $ref: '#/components/schemas/PropertyOrGroupWithNamesInLanguage'
         groupOfProperties:
           type: array
           items:
-            $ref: "#/components/schemas/SimpleParentGroup"
+            $ref: '#/components/schemas/SimpleParentGroup'
         symbolsOfThePropertyInAGivenPropertyGroup:
           type: array
           items:
-            $ref: "#/components/schemas/SymbolsOfTheGivenPropertyGroupDto"
+            $ref: '#/components/schemas/SymbolsOfTheGivenPropertyGroupDto'
         visualRepresentation:
           type: array
           items:
@@ -1383,12 +1617,12 @@ components:
         physicalQuantity:
           type: array
           items:
-            $ref: "#/components/schemas/PhysicalQuantity"
+            $ref: '#/components/schemas/PhysicalQuantity'
         dimension:
           type: string
-          description: "Enthält die Dimension der Einheiten in der folgenden Reihenfolge:
-            Länge, Masse, Zeit, Stoffmenge, Lichtstärke, Stromstärke,
-            Temperatur"
+          description: >-
+            Enthält die Dimension der Einheiten in der folgenden Reihenfolge:
+            Länge, Masse, Zeit, Stoffmenge, Lichtstärke, Stromstärke, Temperatur
         methodOfMeasurement:
           type: string
         dataType:
@@ -1398,7 +1632,7 @@ components:
         parametersOfTheDynamicProperty:
           type: array
           items:
-            $ref: "#/components/schemas/PropertyOrGroupWithNamesInLanguage"
+            $ref: '#/components/schemas/PropertyOrGroupWithNamesInLanguage'
         units:
           type: array
           items:
@@ -1406,7 +1640,7 @@ components:
         namesOfTheDefiningValues:
           type: array
           items:
-            $ref: "#/components/schemas/NamesInLanguage"
+            $ref: '#/components/schemas/NamesInLanguage'
         definingValues:
           type: array
           items:
@@ -1418,23 +1652,23 @@ components:
         digitalFormat:
           type: array
           items:
-            $ref: "#/components/schemas/DigitalFormat"
+            $ref: '#/components/schemas/DigitalFormat'
         textFormat:
-          $ref: "#/components/schemas/TextFormat"
+          $ref: '#/components/schemas/TextFormat'
         listOfPossibleValuesInLanguage:
           type: array
           items:
-            $ref: "#/components/schemas/ListOfPossibleValuesInLanguageDto"
+            $ref: '#/components/schemas/ListOfPossibleValuesInLanguageDto'
         boundaryValues:
           type: array
           items:
-            $ref: "#/components/schemas/BoundaryValues"
+            $ref: '#/components/schemas/BoundaryValues'
         metadata:
-          $ref: "#/components/schemas/BimPortalMetadata"
+          $ref: '#/components/schemas/BimPortalMetadata'
         bookmarked:
-          $ref: "#/components/schemas/BookmarkStatus"
+          $ref: '#/components/schemas/BookmarkStatus'
         observed:
-          $ref: "#/components/schemas/ObservationStatus"
+          $ref: '#/components/schemas/ObservationStatus'
         organisationId:
           type: string
           format: uuid
@@ -1443,7 +1677,7 @@ components:
         tags:
           type: array
           items:
-            $ref: "#/components/schemas/TagAssignmentDto"
+            $ref: '#/components/schemas/TagAssignmentDto'
         organisationType:
           type: string
           enum:
@@ -1453,349 +1687,6 @@ components:
             - BUND
         canCreateNewVersion:
           type: boolean
-    ObservationStatus:
-      type: object
-      properties:
-        observationId:
-          type: string
-          format: uuid
-    TagAssignmentDto:
-      type: object
-      properties:
-        tag:
-          $ref: "#/components/schemas/TagDto"
-        organisationId:
-          type: string
-          format: uuid
-    TagDto:
-      required:
-        - id
-        - name
-        - organisationId
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        organisationId:
-          type: string
-          format: uuid
-        global:
-          type: boolean
-        assignmentCount:
-          type: integer
-          format: int32
-    BoundaryValues:
-      required:
-        - boundaryValuePairs
-        - unit
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        version:
-          type: integer
-          format: int64
-        createdDate:
-          type: string
-          format: date-time
-        boundaryValuePairs:
-          type: array
-          items:
-            type: string
-        unit:
-          type: string
-    BimPortalMetadata:
-      required:
-        - organisationId
-      type: object
-      properties:
-        status:
-          type: string
-          deprecated: true
-          enum:
-            - INITIAL
-            - PROPOSED
-            - CREATION
-            - REVIEW
-            - VALIDATION
-            - ACCEPTED
-            - PUBLISHED
-            - DEPRECATED
-            - SORTED_OUT
-            - REJECTED
-        visibility:
-          type: string
-          enum:
-            - PUBLIC
-            - SECURED
-            - CHILD
-            - PRIVATE
-        external:
-          type: boolean
-        organisationId:
-          type: string
-          format: uuid
-        transferred:
-          type: boolean
-        nextState:
-          type: string
-          writeOnly: true
-          enum:
-            - PROPOSE
-            - ACCEPT
-            - SUBMIT_FOR_REVIEW
-            - SUBMIT_FOR_VALIDATION
-            - VALIDATED
-            - PUBLISH
-            - DEPRECATE
-            - SORT_OUT
-            - REJECT
-            - RESTORE
-            - EXTEND
-            - CREATE
-            - IMPORT
-    BookmarkStatus:
-      type: object
-      properties:
-        bookmarkId:
-          type: string
-          format: uuid
-    ListOfPossibleValuesInLanguageDto:
-      type: object
-      properties:
-        possibleValue:
-          type: string
-        language:
-          type: string
-        value:
-          type: string
-    DigitalFormat:
-      required:
-        - precision
-        - unitOfMeasure
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        version:
-          type: integer
-          format: int64
-        createdDate:
-          type: string
-          format: date-time
-        precision:
-          type: string
-        unitOfMeasure:
-          type: string
-    TextFormat:
-      type: object
-      properties:
-        encoding:
-          type: string
-        numberOfCharacters:
-          type: string
-    PhysicalQuantity:
-      required:
-        - language
-        - siUnit
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        version:
-          type: integer
-          format: int64
-        createdDate:
-          type: string
-          format: date-time
-        siUnit:
-          type: string
-        language:
-          type: string
-    RelationOfThePropertyIdentifiersInTheInterconnectedDictionariesDto:
-      required:
-        - interConDictID
-        - propertyID
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        version:
-          type: integer
-          format: int64
-        createdDate:
-          type: string
-          format: date-time
-        propertyID:
-          type: string
-        interConDictID:
-          type: string
-    PropertyOrGroupWithNamesInLanguage:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        namesInLanguage:
-          type: array
-          items:
-            $ref: "#/components/schemas/NamesInLanguageDto"
-        versionNumber:
-          type: integer
-          format: int64
-        revisionNumber:
-          type: integer
-          format: int64
-        informationElementStatus:
-          type: string
-          enum:
-            - INITIAL
-            - PROPOSED
-            - CREATION
-            - REVIEW
-            - VALIDATION
-            - ACCEPTED
-            - PUBLISHED
-            - DEPRECATED
-            - SORTED_OUT
-            - REJECTED
-    CountryLanguageCode:
-      type: object
-      properties:
-        code:
-          type: string
-        language:
-          type: string
-        country:
-          type: string
-    DefinitionsInLanguageDto:
-      type: object
-      properties:
-        definition:
-          type: string
-        language:
-          type: string
-        value:
-          type: string
-    ExamplesInLanguageDto:
-      type: object
-      properties:
-        example:
-          type: string
-        language:
-          type: string
-        languageName:
-          type: string
-        countryName:
-          type: string
-    DescriptionsInLanguageDto:
-      type: object
-      properties:
-        description:
-          type: string
-        language:
-          type: string
-        languageName:
-          type: string
-        countryName:
-          type: string
-    SimpleParentGroup:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        namesInLanguage:
-          type: array
-          items:
-            $ref: "#/components/schemas/NamesInLanguageDto"
-        definitionsInLanguage:
-          type: array
-          items:
-            $ref: "#/components/schemas/DefinitionsInLanguageDto"
-        versionNumber:
-          type: integer
-          format: int64
-        revisionNumber:
-          type: integer
-          format: int64
-        informationElementStatus:
-          type: string
-          enum:
-            - INITIAL
-            - PROPOSED
-            - CREATION
-            - REVIEW
-            - VALIDATION
-            - ACCEPTED
-            - PUBLISHED
-            - DEPRECATED
-            - SORTED_OUT
-            - REJECTED
-        containsProperty:
-          type: boolean
-        guid:
-          type: string
-          format: uuid
-        categoryOfGroupOfProperties:
-          type: string
-        userCanViewDetails:
-          type: boolean
-        versionRevisionString:
-          type: string
-    NamesInLanguage:
-      required:
-        - language
-        - name
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        version:
-          type: integer
-          format: int64
-        createdDate:
-          type: string
-          format: date-time
-        name:
-          type: string
-        language:
-          type: string
-        value:
-          type: string
-    SymbolsOfTheGivenPropertyGroupDto:
-      type: object
-      properties:
-        symbol:
-          type: string
-        propGroupID:
-          type: string
-          format: uuid
-        groupNames:
-          type: array
-          items:
-            $ref: "#/components/schemas/NamesInLanguageDto"
-    NamesInLanguageDto:
-      type: object
-      properties:
-        name:
-          type: string
-        language:
-          type: string
-        languageName:
-          type: string
-        countryName:
-          type: string
-        value:
-          type: string
     PropertyGroupDto:
       type: object
       properties:
@@ -1845,28 +1736,28 @@ components:
         replaces:
           type: array
           items:
-            $ref: "#/components/schemas/PropertyOrGroupWithNamesInLanguage"
+            $ref: '#/components/schemas/PropertyOrGroupWithNamesInLanguage'
         replacedBy:
           type: array
           items:
-            $ref: "#/components/schemas/PropertyOrGroupWithNamesInLanguage"
+            $ref: '#/components/schemas/PropertyOrGroupWithNamesInLanguage'
         deprecationExplanation:
           type: string
         relationOfThePropertyGroupIdentifiersInTheInterconnectedDictionaries:
           type: array
           items:
-            $ref: "#/components/schemas/RelationOfThePropertyGroupIdentifiersInTheInterconn\
-              ectedDictionaries"
+            $ref: >-
+              #/components/schemas/RelationOfThePropertyGroupIdentifiersInTheInterconnectedDictionaries
         creatorsLanguage:
-          $ref: "#/components/schemas/CountryLanguageCode"
+          $ref: '#/components/schemas/CountryLanguageCode'
         namesInLanguage:
           type: array
           items:
-            $ref: "#/components/schemas/NamesInLanguageDto"
+            $ref: '#/components/schemas/NamesInLanguageDto'
         definitionsInLanguage:
           type: array
           items:
-            $ref: "#/components/schemas/DefinitionsInLanguageDto"
+            $ref: '#/components/schemas/DefinitionsInLanguageDto'
         visualRepresentation:
           type: array
           items:
@@ -1886,23 +1777,23 @@ components:
         properties:
           type: array
           items:
-            $ref: "#/components/schemas/PropertyDto"
+            $ref: '#/components/schemas/PropertyDto'
         childrenPropertyGroups:
           type: array
           items:
-            $ref: "#/components/schemas/PropertyGroupDto"
+            $ref: '#/components/schemas/PropertyGroupDto'
         parentGroup:
-          $ref: "#/components/schemas/SimpleParentGroup"
+          $ref: '#/components/schemas/SimpleParentGroup'
         metadata:
-          $ref: "#/components/schemas/BimPortalMetadata"
+          $ref: '#/components/schemas/BimPortalMetadata'
         bookmarked:
-          $ref: "#/components/schemas/BookmarkStatus"
+          $ref: '#/components/schemas/BookmarkStatus'
         observed:
-          $ref: "#/components/schemas/ObservationStatus"
+          $ref: '#/components/schemas/ObservationStatus'
         simpleInheritedProperties:
           type: array
           items:
-            $ref: "#/components/schemas/SimpleInheritedPropertyDto"
+            $ref: '#/components/schemas/SimpleInheritedPropertyDto'
         organisationId:
           type: string
           format: uuid
@@ -1911,7 +1802,7 @@ components:
         tags:
           type: array
           items:
-            $ref: "#/components/schemas/PropertyGroupTagDto"
+            $ref: '#/components/schemas/PropertyGroupTagDto'
         organisationType:
           type: string
           enum:
@@ -1921,36 +1812,26 @@ components:
             - BUND
         canCreateNewVersion:
           type: boolean
-    RelationOfThePropertyGroupIdentifiersInTheInterconnectedDictionaries:
-      required:
-        - interConDictID
-        - propGroupID
+        catalogInformation:
+          $ref: '#/components/schemas/PropertyOrGroupCatalogInformation'
+    PropertyGroupTagDto:
+      type: object
+      properties:
+        tag:
+          $ref: '#/components/schemas/TagDto'
+        organisationId:
+          type: string
+          format: uuid
+    PropertyOrGroupWithNamesInLanguage:
       type: object
       properties:
         id:
           type: string
           format: uuid
-        version:
-          type: integer
-          format: int64
-        createdDate:
-          type: string
-          format: date-time
-        propGroupID:
-          type: string
-        interConDictID:
-          type: string
-    SimpleInheritedPropertyDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        names:
-          uniqueItems: true
+        namesInLanguage:
           type: array
           items:
-            $ref: "#/components/schemas/NamesInLanguage"
+            $ref: '#/components/schemas/NamesInLanguageDto'
         versionNumber:
           type: integer
           format: int64
@@ -1970,146 +1851,237 @@ components:
             - DEPRECATED
             - SORTED_OUT
             - REJECTED
-    PropertyGroupTagDto:
+    RelationOfThePropertyGroupIdentifiersInTheInterconnectedDictionaries:
       type: object
       properties:
-        tag:
-          $ref: "#/components/schemas/TagDto"
-        organisationId:
+        id:
           type: string
           format: uuid
-    PropertyOrGroupForPublicRequest:
-      type: object
-      properties:
-        organisationGuids:
-          uniqueItems: true
-          type: array
-          description: GUIDs der Organisationen, denen die Merkmale oder Gruppen angehören
-            müssen
-          items:
-            type: string
-            description: GUIDs der Organisationen, denen die Merkmale oder Gruppen angehören
-              müssen
-            format: uuid
-        searchString:
-          type: string
-          description: Teilstring, den die Namen der zu liefernden Merkmale und Gruppen
-            beinhalten müssen
-        filterGuids:
-          type: array
-          description: GUIDs der Filter, die die zu liefernden Merkmale und Gruppen
-            besitzen müssen
-          items:
-            type: string
-            description: GUIDs der Filter, die die zu liefernden Merkmale und Gruppen
-              besitzen müssen
-            format: uuid
-        parentGuid:
-          type: string
-          description: GUID der Gruppe, in der die zu liefernden Merkmale und Gruppen
-            enthalten sein müssen
-          format: uuid
-        includeDeprecated:
-          type: boolean
-          description: true, wenn auch veraltete Merkmale und Gruppen mitgeliefert werden
-            sollen
-        pageNumber:
+        version:
           type: integer
-          description: Laufende Nummer der Ergebnisseite
-          format: int32
-    PropertyOrGroupForPublicDto:
+          format: int64
+        createdDate:
+          type: string
+          format: date-time
+        propGroupID:
+          type: string
+        interConDictID:
+          type: string
+      required:
+        - interConDictID
+        - propGroupID
+    RelationOfThePropertyIdentifiersInTheInterconnectedDictionaries:
       type: object
       properties:
-        name:
-          type: string
-        definition:
-          type: string
-        guid:
+        id:
           type: string
           format: uuid
+        version:
+          type: integer
+          format: int64
+        createdDate:
+          type: string
+          format: date-time
+        propertyID:
+          type: string
+        interConDictID:
+          type: string
+      required:
+        - interConDictID
+        - propertyID
+    SimpleInheritedPropertyDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        names:
+          type: array
+          items:
+            $ref: '#/components/schemas/NamesInLanguage'
+          uniqueItems: true
         versionNumber:
           type: integer
           format: int64
         revisionNumber:
           type: integer
           format: int64
-        parentGuids:
-          type: array
-          items:
-            type: string
-            format: uuid
-        organisationName:
-          type: string
-        dataType:
-          type: string
-        units:
-          type: array
-          items:
-            type: string
-        category:
+        informationElementStatus:
           type: string
           enum:
-            - ALTERNATIVE_USE
-            - CLASS
-            - COMPOSED_PROPERTY
-            - DOMAIN
-            - REFERENCE_DOCUMENT
-            - NAME_PROPERTY_SET
-        deprecated:
+            - INITIAL
+            - PROPOSED
+            - CREATION
+            - REVIEW
+            - VALIDATION
+            - ACCEPTED
+            - PUBLISHED
+            - DEPRECATED
+            - SORTED_OUT
+            - REJECTED
+    SimpleParentGroup:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        namesInLanguage:
+          type: array
+          items:
+            $ref: '#/components/schemas/NamesInLanguageDto'
+        definitionsInLanguage:
+          type: array
+          items:
+            $ref: '#/components/schemas/DefinitionsInLanguageDto'
+        versionNumber:
+          type: integer
+          format: int64
+        revisionNumber:
+          type: integer
+          format: int64
+        informationElementStatus:
+          type: string
+          enum:
+            - INITIAL
+            - PROPOSED
+            - CREATION
+            - REVIEW
+            - VALIDATION
+            - ACCEPTED
+            - PUBLISHED
+            - DEPRECATED
+            - SORTED_OUT
+            - REJECTED
+        containsProperty:
           type: boolean
-        currentPage:
+        guid:
+          type: string
+          format: uuid
+        categoryOfGroupOfProperties:
+          type: string
+        userCanViewDetails:
+          type: boolean
+        versionRevisionString:
+          type: string
+    SymbolsOfTheGivenPropertyGroupDto:
+      type: object
+      properties:
+        symbol:
+          type: string
+        propGroupID:
+          type: string
+          format: uuid
+        groupNames:
+          type: array
+          items:
+            $ref: '#/components/schemas/NamesInLanguageDto'
+    TagAssignmentDto:
+      type: object
+      properties:
+        tag:
+          $ref: '#/components/schemas/TagDto'
+        organisationId:
+          type: string
+          format: uuid
+    TagDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+        organisationId:
+          type: string
+          format: uuid
+        global:
+          type: boolean
+        assignmentCount:
           type: integer
           format: int32
-        maxPage:
-          type: integer
-          format: int32
-    LoinForPublicRequest:
+        guidReference:
+          type: string
+          format: uuid
       required:
-        - referencedIds
+        - id
+        - name
+        - organisationId
+    TextFormat:
+      type: object
+      properties:
+        encoding:
+          type: string
+        numberOfCharacters:
+          type: string
+    TagForPublicDto:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        guid:
+          type: string
+          format: uuid
+      required:
+        - guid
+        - name
+    TagGroupForPublicDto:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        guid:
+          type: string
+          format: uuid
+        filter:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagForPublicDto'
+      required:
+        - guid
+        - name
+    LoinForPublicRequest:
       type: object
       properties:
         filterGuids:
           type: array
-          description: GUIDs der Filter, die die zu liefernden LOINs besitzen müssen
+          description: 'GUIDs der Filter, die die zu liefernden LOINs besitzen müssen'
           items:
             type: string
-            description: GUIDs der Filter, die die zu liefernden LOINs besitzen müssen
             format: uuid
         referencedIds:
           type: array
-          description: GUIDs der Merkmale, die die zu liefernden LOINs referenzieren müssen
+          description: 'GUIDs der Merkmale, die die zu liefernden LOINs referenzieren müssen'
           items:
             type: string
-            description: GUIDs der Merkmale, die die zu liefernden LOINs referenzieren
-              müssen
             format: uuid
         organisationGuids:
-          uniqueItems: true
           type: array
-          description: GUIDs der Organisationen, denen die LOINs angehören müssen
+          description: 'GUIDs der Organisationen, denen die LOINs angehören müssen'
           items:
             type: string
-            description: GUIDs der Organisationen, denen die LOINs angehören müssen
             format: uuid
+          uniqueItems: true
         searchString:
           type: string
-          description: Teilstring, den die Namen der zu liefernden LOINs beinhalten müssen
+          description: 'Teilstring, den die Namen der zu liefernden LOINs beinhalten müssen'
         contextIds:
           type: array
-          description: GUIDs der Kontextinformationen, die die zu liefernden LOINs
+          description: >-
+            GUIDs der Kontextinformationen, die die zu liefernden LOINs
             referenzieren müssen
           items:
             type: string
-            description: GUIDs der Kontextinformationen, die die zu liefernden LOINs
-              referenzieren müssen
             format: uuid
         includeDeprecated:
           type: boolean
-          description: true, wenn auch veraltete LOINs mitgeliefert werden sollen
+          description: 'true, wenn auch veraltete LOINs mitgeliefert werden sollen'
         pageNumber:
           type: integer
-          description: Laufende Nummer der Ergebnisseite
           format: int32
+          description: Laufende Nummer der Ergebnisseite
     SimpleLoinPublicDto:
       type: object
       properties:
@@ -2162,397 +2134,50 @@ components:
           type: array
           items:
             type: string
-            
-    LOINPublicDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        createdDate:
-          type: string
-          format: date-time
-        dateOfActivation:
-          type: string
-          format: date-time
-        dateOfLastChange:
-          type: string
-          format: date-time
-        dateOfRevision:
-          type: string
-          format: date-time
-        dateOfVersion:
-          type: string
-          format: date-time
-        dateOfDeactivation:
-          type: string
-          format: date-time
-        guid:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-        organisationId:
-          type: string
-          format: uuid
-        organisationName:
-          type: string
-        versionNumber:
-          type: integer
-          format: int64
-        revisionNumber:
-          type: integer
-          format: int64
-        buildNumber:
-          type: integer
-          format: int64
-        exportFormats:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        filters:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/FilterAssignmentDto'
-        objectTypes:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/PropertyOrGroupPublicReference'
-        dataFormats:
-          uniqueItems: true
-          type: array
-          items:
-            oneOf:
-              - $ref: '#/components/schemas/IFCDto'
-              - $ref: '#/components/schemas/OKSTRADto'
-              - $ref: '#/components/schemas/OtherDto'
-        properties:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/PropertyOrGroupPublicReference'
-        levelOfDetail:
-          type: string
-        dimensionality:
-          type: string
-        location:
-          type: string
-        appearance:
-          type: string
-        behaviour:
-          type: string
-        geometricComment:
-          type: string
-        documentations:
-          type: array
-          items:
-            $ref: '#/components/schemas/DocumentationDto'
-        fallbackPropertyGroupName:
-          type: string
-        classifications:
-          type: array
-          items:
-            $ref: '#/components/schemas/ClassificationPublicDto'
-        contexts:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/ContextInfoPublicReference'
-    OKSTRADto:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/DataFormatDto'
-        - type: object
-          properties:
-            fileId:
-              type: string
-              format: uuid
-            fileName:
-              type: string
-            name:
-              type: string      
-    OtherDto:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/DataFormatDto'
-        - type: object
-          properties:
-            dataFormatVersion:
-              type: string
-            viewType:
-              type: string
-            name:
-              type: string          
-            
-    ContextInfoPublicReference:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        guid:
-          type: string
-          format: uuid
-        version:
-          type: string
-        name:
-          type: string        
-            
-    DocumentationDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        purpose:
-          type: string
-        format:
-          type: string
-        link:
-          type: string
-        exportAsAttribute:
-          type: boolean 
-          
-    ClassificationPublicDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        property:
-          $ref: '#/components/schemas/PropertyOrGroupPublicReference'
-        propertyGroup:
-          $ref: '#/components/schemas/PropertyOrGroupPublicReference'      
-            
-    FilterAssignmentDto:
-      type: object
-      properties:
-        filter:
-          $ref: '#/components/schemas/FilterDto'
-        organisationId:
-          type: string
-          format: uuid
-          
-    FilterDto:
-      required:
-        - id
-        - name
-        - organisationId
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        organisationId:
-          type: string
-          format: uuid
-        filterGroupName:
-          type: string
-        filterGroup:
-          type: string
-          format: uuid
-        global:
-          type: boolean
-        assignmentCount:
-          type: integer
-          format: int32
-          
-    IFCDto:
-      type: object
-      allOf:
-        - $ref: '#/components/schemas/DataFormatDto'
-        - type: object
-          properties:
-            ifcView:
-              $ref: '#/components/schemas/IFCViewDto'
-            ifcClass:
-              $ref: '#/components/schemas/IFCClassDto'
-            ifcType:
-              $ref: '#/components/schemas/IFCTypeDto'
-            groupAsIFCePset:
-              type: boolean
-            saveObjectTypeAsProperty:
-              type: boolean
-              
-    DataFormatDto:
-      required:
-        - '@class'
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        type:
-          $ref: '#/components/schemas/DataFormatTypeDto'
-        '@class':
-          type: string
-      discriminator:
-        propertyName: '@class'  
-        
-    DataFormatTypeDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        majorRelease:
-          type: integer
-          format: int32
-        minorRelease:
-          type: integer
-          format: int32
-        addendum:
-          type: integer
-          format: int32
-        corrigendum:
-          type: integer
-          format: int32
-        variant:
-          type: string
-          enum:
-            - IFC
-            - OKSTRA
-            - OTHER
-        ifc:
-          type: boolean    
-    IFCViewDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        ifcVersion:
-          $ref: '#/components/schemas/DataFormatType'    
-    DataFormatType:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        version:
-          type: integer
-          format: int64
-        createdDate:
-          type: string
-          format: date-time
-        name:
-          type: string
-        majorRelease:
-          type: integer
-          format: int32
-        minorRelease:
-          type: integer
-          format: int32
-        addendum:
-          type: integer
-          format: int32
-        corrigendum:
-          type: integer
-          format: int32
-        variant:
-          type: string
-          enum:
-            - IFC
-            - OKSTRA
-            - OTHER
-        ifc:
-          type: boolean      
-              
-    PropertyOrGroupPublicReference:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        guid:
-          type: string
-          format: uuid
-        version:
-          type: string
-        name:
-          type: string
-          
-    IFCClassDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        ifcView:
-          type: string
-          format: uuid   
-          
-    IFCTypeDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
-          type: string
-        ifcClass:
-          type: string
-          format: uuid      
-          
     AiaDomainSpecificModelForPublicRequest:
-      required:
-        - referencedIds
       type: object
       properties:
         filterGuids:
           type: array
-          description: GUIDs der Filter, die die zu liefernden Fachmodelle besitzen müssen
+          description: 'GUIDs der Filter, die die zu liefernden Fachmodelle besitzen müssen'
           items:
             type: string
-            description: GUIDs der Filter, die die zu liefernden Fachmodelle besitzen müssen
             format: uuid
         referencedIds:
           type: array
-          description: GUIDs der LOINs, die die zu liefernden Fachmodelle referenzieren müssen
+          description: >-
+            GUIDs der LOINs, die die zu liefernden Fachmodelle referenzieren
+            müssen
           items:
             type: string
-            description: GUIDs der LOINs, die die zu liefernden Fachmodelle referenzieren müssen
             format: uuid
         organisationGuids:
-          uniqueItems: true
           type: array
-          description: GUIDs der Organisationen, denen die Fachmodelle angehören müssen
+          description: 'GUIDs der Organisationen, denen die Fachmodelle angehören müssen'
           items:
             type: string
-            description: GUIDs der Organisationen, denen die Fachmodelle angehören müssen
             format: uuid
+          uniqueItems: true
         searchString:
           type: string
-          description: Teilstring, den die Namen der zu liefernden Fachmodelle beinhalten müssen
+          description: >-
+            Teilstring, den die Namen der zu liefernden Fachmodelle beinhalten
+            müssen
         contextIds:
           type: array
-          description: GUIDs der Kontextinformationen, die die zu liefernden Fachmodelle referenzieren müssen
+          description: >-
+            GUIDs der Kontextinformationen, die die zu liefernden Fachmodelle
+            referenzieren müssen
           items:
             type: string
-            description: GUIDs der Kontextinformationen, die die zu liefernden Fachmodelle referenzieren müssen
             format: uuid
         includeDeprecated:
           type: boolean
-          description: true, wenn auch veraltete Fachmodelle mitgeliefert werden sollen
+          description: 'true, wenn auch veraltete Fachmodelle mitgeliefert werden sollen'
         pageNumber:
           type: integer
+          format: int32
           description: Laufende Nummer der Ergebnisseite
-          format: int32      
     SimpleDomainSpecificModelPublicDto:
       type: object
       properties:
@@ -2604,145 +2229,52 @@ components:
         filters:
           type: array
           items:
-            type: string      
-            
-    AIADomainSpecificModelPublicDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        createdDate:
-          type: string
-          format: date-time
-        dateOfActivation:
-          type: string
-          format: date-time
-        dateOfLastChange:
-          type: string
-          format: date-time
-        dateOfRevision:
-          type: string
-          format: date-time
-        dateOfVersion:
-          type: string
-          format: date-time
-        dateOfDeactivation:
-          type: string
-          format: date-time
-        guid:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-        organisationId:
-          type: string
-          format: uuid
-        organisationName:
-          type: string
-        versionNumber:
-          type: integer
-          format: int64
-        revisionNumber:
-          type: integer
-          format: int64
-        buildNumber:
-          type: integer
-          format: int64
-        exportFormats:
-          uniqueItems: true
-          type: array
-          items:
             type: string
-        templateType:
-          type: string
-          enum:
-            - COMPLETED_TEMPLATE
-            - UNCOMPLETED_TEMPLATE
-            - PROJECT_TEMPLATE
-        chapters:
-          type: array
-          items:
-            $ref: '#/components/schemas/ChapterPublicReference'
-        loins:
-          type: array
-          items:
-            $ref: '#/components/schemas/LoinPublicReference'
-        dataFormats:
-          uniqueItems: true
-          type: array
-          items:
-            oneOf:
-              - $ref: '#/components/schemas/IFCDto'
-              - $ref: '#/components/schemas/OKSTRADto'
-              - $ref: '#/components/schemas/OtherDto'      
-              
-    ChapterPublicReference:
-      type: object
-      properties:
-        title:
-          type: string
-        content:
-          type: string
-        chapterNumber:
-          type: string
-        pleaseChange:
-          type: boolean
-    LoinPublicReference:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        guid:
-          type: string
-          format: uuid
-        version:
-          type: string
-        name:
-          type: string          
-          
     AiaContextInfoPublicRequest:
       type: object
       properties:
         filterGuids:
           type: array
-          description: GUIDs der Filter, die die zu liefernden Kontextinformationen besitzen müssen
+          description: >-
+            GUIDs der Filter, die die zu liefernden Kontextinformationen
+            besitzen müssen
           items:
             type: string
-            description: GUIDs der Filter, die die zu liefernden Kontextinformationen besitzen müssen
             format: uuid
         contextType:
           type: string
           description: Spezifischer Kontextinformationstyp
         organisationGuids:
-          uniqueItems: true
           type: array
-          description: GUIDs der Organisationen, denen die Kontextinformationen angehören müssen
+          description: >-
+            GUIDs der Organisationen, denen die Kontextinformationen angehören
+            müssen
           items:
             type: string
-            description: GUIDs der Organisationen, denen die Kontextinformationen angehören müssen
             format: uuid
+          uniqueItems: true
         searchString:
           type: string
-          description: Teilstring, den die Namen der zu liefernden Kontextinformationen beinhalten müssen
+          description: >-
+            Teilstring, den die Namen der zu liefernden Kontextinformationen
+            beinhalten müssen
         contextIds:
           type: array
-          description: GUIDs der Kontextinformationen, die die zu liefernden Kontextinformationen referenzieren müssen
+          description: >-
+            GUIDs der Kontextinformationen, die die zu liefernden
+            Kontextinformationen referenzieren müssen
           items:
             type: string
-            description: GUIDs der Kontextinformationen, die die zu liefernden Kontextinformationen referenzieren müssen
             format: uuid
         includeDeprecated:
           type: boolean
-          description: true, wenn auch veraltete Kontextinformationen mitgeliefert werden sollen
+          description: >-
+            true, wenn auch veraltete Kontextinformationen mitgeliefert werden
+            sollen
         pageNumber:
           type: integer
+          format: int32
           description: Laufende Nummer der Ergebnisseite
-          format: int32      
-
     SimpleContextInfoPublicDto:
       type: object
       properties:
@@ -2793,316 +2325,40 @@ components:
           type: array
           items:
             type: string
-            
-            
-    AIAContextInfoPublicDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        createdDate:
-          type: string
-          format: date-time
-        dateOfActivation:
-          type: string
-          format: date-time
-        dateOfLastChange:
-          type: string
-          format: date-time
-        dateOfRevision:
-          type: string
-          format: date-time
-        dateOfVersion:
-          type: string
-          format: date-time
-        dateOfDeactivation:
-          type: string
-          format: date-time
-        guid:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-        organisationId:
-          type: string
-          format: uuid
-        organisationName:
-          type: string
-        versionNumber:
-          type: integer
-          format: int64
-        revisionNumber:
-          type: integer
-          format: int64
-        buildNumber:
-          type: integer
-          format: int64
-        exportFormats:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        templateType:
-          type: string
-          enum:
-            - COMPLETED_TEMPLATE
-            - UNCOMPLETED_TEMPLATE
-            - PROJECT_TEMPLATE
-        chapters:
-          type: array
-          items:
-            $ref: '#/components/schemas/ChapterPublicReference'
-        contextType:
-          type: string
-          enum:
-            - CONSTRUCTION_TYPE
-            - PURPOSE
-            - PROJECT_PHASE
-            - ACTOR
-            - DOMAIN_SPECIFIC_MODEL_TYPE
-        alternativeIdentifier:
-          type: string        
-            
-    AiaProjectForPublicRequest:
-      required:
-        - referencedIds
-      type: object
-      properties:
-        referencedIds:
-          type: array
-          description: GUIDs der Fachmodelle/Projektvorlagen, die die zu liefernden Projekte referenzieren müssen
-          items:
-            type: string
-            description: GUIDs der Fachmodelle/Projektvorlagen, die die zu liefernden Projekte referenzieren müssen
-            format: uuid
-        organisationGuids:
-          uniqueItems: true
-          type: array
-          description: GUIDs der Organisationen, denen die Projekte angehören müssen
-          items:
-            type: string
-            description: GUIDs der Organisationen, denen die Projekte angehören müssen
-            format: uuid
-        searchString:
-          type: string
-          description: Teilstring, den die Namen der zu liefernden Projekte beinhalten müssen
-        contextIds:
-          type: array
-          description: GUIDs der Kontextinformationen, die die zu liefernden Projekte referenzieren müssen
-          items:
-            type: string
-            description: GUIDs der Kontextinformationen, die die zu liefernden Projekte referenzieren müssen
-            format: uuid
-        includeDeprecated:
-          type: boolean
-          description: true, wenn auch veraltete Projekte mitgeliefert werden sollen
-        pageNumber:
-          type: integer
-          description: Laufende Nummer der Ergebnisseite
-          format: int32        
-    SimpleAiaProjectPublicDto:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        id:
-          type: string
-          format: uuid
-        guid:
-          type: string
-          format: uuid
-        version:
-          type: string
-        organisation:
-          type: string
-        visibility:
-          type: string
-          enum:
-            - PUBLIC
-            - SECURED
-            - CHILD
-            - PRIVATE
-        constructionTypes:
-          type: array
-          items:
-            type: string
-        projectPhases:
-          type: array
-          items:
-            type: string
-        purposes:
-          type: array
-          items:
-            type: string
-        actors:
-          type: array
-          items:
-            type: string
-        domainSpecificModelTypes:
-          type: array
-          items:
-            type: string        
-            
-    AIAProjectPublicDto:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        createdDate:
-          type: string
-          format: date-time
-        dateOfActivation:
-          type: string
-          format: date-time
-        dateOfLastChange:
-          type: string
-          format: date-time
-        dateOfRevision:
-          type: string
-          format: date-time
-        dateOfVersion:
-          type: string
-          format: date-time
-        dateOfDeactivation:
-          type: string
-          format: date-time
-        guid:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-        organisationId:
-          type: string
-          format: uuid
-        organisationName:
-          type: string
-        versionNumber:
-          type: integer
-          format: int64
-        revisionNumber:
-          type: integer
-          format: int64
-        buildNumber:
-          type: integer
-          format: int64
-        exportFormats:
-          uniqueItems: true
-          type: array
-          items:
-            type: string
-        templateType:
-          type: string
-          enum:
-            - COMPLETED_TEMPLATE
-            - UNCOMPLETED_TEMPLATE
-            - PROJECT_TEMPLATE
-        chapters:
-          type: array
-          items:
-            $ref: '#/components/schemas/ChapterPublicReference'
-        coordinateSystem:
-          $ref: '#/components/schemas/CoordinateSystem'
-        models:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/AIADomainSpecificModelPublicReference'
-        automaticDomainSpecificModels:
-          uniqueItems: true
-          type: array
-          items:
-            $ref: '#/components/schemas/AutomaticDomainSpecificModelEntryPublicReference'
-        dataFormats:
-          uniqueItems: true
-          type: array
-          items:
-            oneOf:
-              - $ref: '#/components/schemas/IFCDto'
-              - $ref: '#/components/schemas/OKSTRADto'
-              - $ref: '#/components/schemas/OtherDto'     
-              
-    CoordinateSystem:
-      type: object
-      properties:
-        name:
-          type: string
-        zone:
-          type: string
-        east:
-          type: number
-        north:
-          type: number
-        height:
-          type: number          
-    AIADomainSpecificModelPublicReference:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        guid:
-          type: string
-          format: uuid
-        version:
-          type: string
-        name:
-          type: string      
-          
-    AutomaticDomainSpecificModelEntryPublicReference:
-      type: object
-      properties:
-        contexts:
-          type: array
-          items:
-            $ref: '#/components/schemas/ContextInfoPublicReference'
-        loins:
-          type: array
-          items:
-            $ref: '#/components/schemas/LoinPublicReference'      
-            
     AiaTemplateForPublicRequest:
       type: object
       properties:
         organisationGuids:
-          uniqueItems: true
           type: array
-          description: GUIDs der Organisationen, denen die LOINs angehören müssen
+          description: 'GUIDs der Organisationen, denen die LOINs angehören müssen'
           items:
             type: string
-            description: GUIDs der Organisationen, denen die LOINs angehören müssen
             format: uuid
+          uniqueItems: true
         searchString:
           type: string
-          description: Teilstring, den die Namen der zu liefernden LOINs beinhalten müssen
+          description: 'Teilstring, den die Namen der zu liefernden LOINs beinhalten müssen'
         contextIds:
           type: array
-          description: GUIDs der Kontextinformationen, die die zu liefernden LOINs referenzieren müssen
+          description: >-
+            GUIDs der Kontextinformationen, die die zu liefernden LOINs
+            referenzieren müssen
           items:
             type: string
-            description: GUIDs der Kontextinformationen, die die zu liefernden LOINs referenzieren müssen
             format: uuid
         projectTemplate:
           type: boolean
-          description: true, wenn die Vorlage eine Projektvorlage ist
+          description: 'true, wenn die Vorlage eine Projektvorlage ist'
         template:
           type: boolean
-          description: true, wenn die Vorlage eine Teilvorlage ist
+          description: 'true, wenn die Vorlage eine Teilvorlage ist'
         includeDeprecated:
           type: boolean
-          description: true, wenn auch veraltete LOINs mitgeliefert werden sollen
+          description: 'true, wenn auch veraltete LOINs mitgeliefert werden sollen'
         pageNumber:
           type: integer
+          format: int32
           description: Laufende Nummer der Ergebnisseite
-          format: int32        
-            
     SimpleAiaTemplatePublicDto:
       type: object
       properties:
@@ -3156,8 +2412,615 @@ components:
         filters:
           type: array
           items:
-            type: string        
-            
+            type: string
+    AiaProjectForPublicRequest:
+      type: object
+      properties:
+        referencedIds:
+          type: array
+          description: >-
+            GUIDs der Fachmodelle/Projektvorlagen, die die zu liefernden
+            Projekte referenzieren müssen
+          items:
+            type: string
+            format: uuid
+        organisationGuids:
+          type: array
+          description: 'GUIDs der Organisationen, denen die Projekte angehören müssen'
+          items:
+            type: string
+            format: uuid
+          uniqueItems: true
+        searchString:
+          type: string
+          description: >-
+            Teilstring, den die Namen der zu liefernden Projekte beinhalten
+            müssen
+        contextIds:
+          type: array
+          description: >-
+            GUIDs der Kontextinformationen, die die zu liefernden Projekte
+            referenzieren müssen
+          items:
+            type: string
+            format: uuid
+        includeDeprecated:
+          type: boolean
+          description: 'true, wenn auch veraltete Projekte mitgeliefert werden sollen'
+        pageNumber:
+          type: integer
+          format: int32
+          description: Laufende Nummer der Ergebnisseite
+    SimpleAiaProjectPublicDto:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        id:
+          type: string
+          format: uuid
+        guid:
+          type: string
+          format: uuid
+        version:
+          type: string
+        organisation:
+          type: string
+        visibility:
+          type: string
+          enum:
+            - PUBLIC
+            - SECURED
+            - CHILD
+            - PRIVATE
+        constructionTypes:
+          type: array
+          items:
+            type: string
+        projectPhases:
+          type: array
+          items:
+            type: string
+        purposes:
+          type: array
+          items:
+            type: string
+        actors:
+          type: array
+          items:
+            type: string
+        domainSpecificModelTypes:
+          type: array
+          items:
+            type: string
+    ClassificationPublicDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        property:
+          $ref: '#/components/schemas/PropertyOrGroupPublicReference'
+        propertyGroup:
+          $ref: '#/components/schemas/PropertyOrGroupPublicReference'
+    ContextInfoPublicReference:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        guid:
+          type: string
+          format: uuid
+        version:
+          type: string
+        name:
+          type: string
+    DataFormatDto:
+      type: object
+      discriminator:
+        propertyName: '@class'
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/DataFormatTypeDto'
+        '@class':
+          type: string
+      required:
+        - '@class'
+    DataFormatType:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        version:
+          type: integer
+          format: int64
+        createdDate:
+          type: string
+          format: date-time
+        name:
+          type: string
+        majorRelease:
+          type: integer
+          format: int32
+        minorRelease:
+          type: integer
+          format: int32
+        addendum:
+          type: integer
+          format: int32
+        corrigendum:
+          type: integer
+          format: int32
+        variant:
+          type: string
+          enum:
+            - IFC
+            - OKSTRA
+            - OTHER
+        ifc:
+          type: boolean
+    DataFormatTypeDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        majorRelease:
+          type: integer
+          format: int32
+        minorRelease:
+          type: integer
+          format: int32
+        addendum:
+          type: integer
+          format: int32
+        corrigendum:
+          type: integer
+          format: int32
+        variant:
+          type: string
+          enum:
+            - IFC
+            - OKSTRA
+            - OTHER
+        ifc:
+          type: boolean
+    DocumentationDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        purpose:
+          type: string
+        format:
+          type: string
+        link:
+          type: string
+        exportAsAttribute:
+          type: boolean
+    FilterAssignmentDto:
+      type: object
+      properties:
+        filter:
+          $ref: '#/components/schemas/FilterDto'
+        organisationId:
+          type: string
+          format: uuid
+    FilterDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+        organisationId:
+          type: string
+          format: uuid
+        filterGroupName:
+          type: string
+        filterGroup:
+          type: string
+          format: uuid
+        global:
+          type: boolean
+        assignmentCount:
+          type: integer
+          format: int32
+      required:
+        - id
+        - name
+        - organisationId
+    IFCClassDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        ifcView:
+          type: string
+          format: uuid
+    IFCDto:
+      allOf:
+        - $ref: '#/components/schemas/DataFormatDto'
+        - type: object
+          properties:
+            ifcView:
+              $ref: '#/components/schemas/IFCViewDto'
+            ifcClass:
+              $ref: '#/components/schemas/IFCClassDto'
+            ifcType:
+              $ref: '#/components/schemas/IFCTypeDto'
+            groupAsIFCePset:
+              type: boolean
+            saveObjectTypeAsProperty:
+              type: boolean
+    IFCTypeDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        ifcClass:
+          type: string
+          format: uuid
+    IFCViewDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        ifcVersion:
+          $ref: '#/components/schemas/DataFormatType'
+    LOINPublicDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdDate:
+          type: string
+          format: date-time
+        dateOfActivation:
+          type: string
+          format: date-time
+        dateOfLastChange:
+          type: string
+          format: date-time
+        dateOfRevision:
+          type: string
+          format: date-time
+        dateOfVersion:
+          type: string
+          format: date-time
+        dateOfDeactivation:
+          type: string
+          format: date-time
+        guid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        organisationId:
+          type: string
+          format: uuid
+        organisationName:
+          type: string
+        versionNumber:
+          type: integer
+          format: int64
+        revisionNumber:
+          type: integer
+          format: int64
+        buildNumber:
+          type: integer
+          format: int64
+        exportFormats:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        filters:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilterAssignmentDto'
+          uniqueItems: true
+        objectTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyOrGroupPublicReference'
+          uniqueItems: true
+        dataFormats:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/IFCDto'
+              - $ref: '#/components/schemas/OKSTRADto'
+              - $ref: '#/components/schemas/OtherDto'
+          uniqueItems: true
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyOrGroupPublicReference'
+          uniqueItems: true
+        levelOfDetail:
+          type: string
+        dimensionality:
+          type: string
+        location:
+          type: string
+        appearance:
+          type: string
+        behaviour:
+          type: string
+        geometricComment:
+          type: string
+        documentations:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentationDto'
+        fallbackPropertyGroupName:
+          type: string
+        classifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassificationPublicDto'
+        contexts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContextInfoPublicReference'
+          uniqueItems: true
+    OKSTRADto:
+      allOf:
+        - $ref: '#/components/schemas/DataFormatDto'
+        - type: object
+          properties:
+            fileId:
+              type: string
+              format: uuid
+            fileName:
+              type: string
+            name:
+              type: string
+    OtherDto:
+      allOf:
+        - $ref: '#/components/schemas/DataFormatDto'
+        - type: object
+          properties:
+            dataFormatVersion:
+              type: string
+            viewType:
+              type: string
+            name:
+              type: string
+    PropertyOrGroupPublicReference:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        guid:
+          type: string
+          format: uuid
+        version:
+          type: string
+        name:
+          type: string
+    FilterForPublicDto:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        guid:
+          type: string
+          format: uuid
+      required:
+        - guid
+        - name
+    FilterGroupForPublicDto:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        guid:
+          type: string
+          format: uuid
+        filter:
+          type: array
+          items:
+            $ref: '#/components/schemas/FilterForPublicDto'
+      required:
+        - guid
+        - name
+    AIADomainSpecificModelPublicDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdDate:
+          type: string
+          format: date-time
+        dateOfActivation:
+          type: string
+          format: date-time
+        dateOfLastChange:
+          type: string
+          format: date-time
+        dateOfRevision:
+          type: string
+          format: date-time
+        dateOfVersion:
+          type: string
+          format: date-time
+        dateOfDeactivation:
+          type: string
+          format: date-time
+        guid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        organisationId:
+          type: string
+          format: uuid
+        organisationName:
+          type: string
+        versionNumber:
+          type: integer
+          format: int64
+        revisionNumber:
+          type: integer
+          format: int64
+        buildNumber:
+          type: integer
+          format: int64
+        exportFormats:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        templateType:
+          type: string
+          enum:
+            - COMPLETED_TEMPLATE
+            - UNCOMPLETED_TEMPLATE
+            - PROJECT_TEMPLATE
+        chapters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChapterPublicReference'
+        loins:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoinPublicReference'
+        dataFormats:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/IFCDto'
+              - $ref: '#/components/schemas/OKSTRADto'
+              - $ref: '#/components/schemas/OtherDto'
+          uniqueItems: true
+    ChapterPublicReference:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        chapterNumber:
+          type: string
+        pleaseChange:
+          type: boolean
+    LoinPublicReference:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        guid:
+          type: string
+          format: uuid
+        version:
+          type: string
+        name:
+          type: string
+    AIAContextInfoPublicDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdDate:
+          type: string
+          format: date-time
+        dateOfActivation:
+          type: string
+          format: date-time
+        dateOfLastChange:
+          type: string
+          format: date-time
+        dateOfRevision:
+          type: string
+          format: date-time
+        dateOfVersion:
+          type: string
+          format: date-time
+        dateOfDeactivation:
+          type: string
+          format: date-time
+        guid:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        organisationId:
+          type: string
+          format: uuid
+        organisationName:
+          type: string
+        versionNumber:
+          type: integer
+          format: int64
+        revisionNumber:
+          type: integer
+          format: int64
+        buildNumber:
+          type: integer
+          format: int64
+        exportFormats:
+          type: array
+          items:
+            type: string
+          uniqueItems: true
+        templateType:
+          type: string
+          enum:
+            - COMPLETED_TEMPLATE
+            - UNCOMPLETED_TEMPLATE
+            - PROJECT_TEMPLATE
+        chapters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChapterPublicReference'
+        contextType:
+          type: string
+          enum:
+            - CONSTRUCTION_TYPE
+            - PURPOSE
+            - PROJECT_PHASE
+            - ACTOR
+            - DOMAIN_SPECIFIC_MODEL_TYPE
+        alternativeIdentifier:
+          type: string
     AIATemplatePublicDto:
       type: object
       properties:
@@ -3204,10 +3067,10 @@ components:
           type: integer
           format: int64
         exportFormats:
-          uniqueItems: true
           type: array
           items:
             type: string
+          uniqueItems: true
         templateType:
           type: string
           enum:
@@ -3217,31 +3080,127 @@ components:
         chapters:
           type: array
           items:
-            $ref: '#/components/schemas/ChapterPublicReference'        
-            
-    FilterForPublicDto:
-      required:
-        - guid
-        - name
+            $ref: '#/components/schemas/ChapterPublicReference'
+    AIADomainSpecificModelPublicReference:
       type: object
       properties:
-        name:
+        id:
           type: string
+          format: uuid
         guid:
           type: string
           format: uuid
-    FilterGroupForPublicDto:
-      required:
-        - guid
-        - name
-      type: object
-      properties:
+        version:
+          type: string
         name:
           type: string
+    AIAProjectPublicDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdDate:
+          type: string
+          format: date-time
+        dateOfActivation:
+          type: string
+          format: date-time
+        dateOfLastChange:
+          type: string
+          format: date-time
+        dateOfRevision:
+          type: string
+          format: date-time
+        dateOfVersion:
+          type: string
+          format: date-time
+        dateOfDeactivation:
+          type: string
+          format: date-time
         guid:
           type: string
           format: uuid
-        filter:
+        name:
+          type: string
+        description:
+          type: string
+        organisationId:
+          type: string
+          format: uuid
+        organisationName:
+          type: string
+        versionNumber:
+          type: integer
+          format: int64
+        revisionNumber:
+          type: integer
+          format: int64
+        buildNumber:
+          type: integer
+          format: int64
+        exportFormats:
           type: array
           items:
-            $ref: '#/components/schemas/FilterForPublicDto'        
+            type: string
+          uniqueItems: true
+        templateType:
+          type: string
+          enum:
+            - COMPLETED_TEMPLATE
+            - UNCOMPLETED_TEMPLATE
+            - PROJECT_TEMPLATE
+        chapters:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChapterPublicReference'
+        coordinateSystem:
+          $ref: '#/components/schemas/CoordinateSystem'
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIADomainSpecificModelPublicReference'
+          uniqueItems: true
+        automaticDomainSpecificModels:
+          type: array
+          items:
+            $ref: >-
+              #/components/schemas/AutomaticDomainSpecificModelEntryPublicReference
+          uniqueItems: true
+        dataFormats:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/IFCDto'
+              - $ref: '#/components/schemas/OKSTRADto'
+              - $ref: '#/components/schemas/OtherDto'
+          uniqueItems: true
+    AutomaticDomainSpecificModelEntryPublicReference:
+      type: object
+      properties:
+        contexts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContextInfoPublicReference'
+        loins:
+          type: array
+          items:
+            $ref: '#/components/schemas/LoinPublicReference'
+    CoordinateSystem:
+      type: object
+      properties:
+        name:
+          type: string
+        zone:
+          type: string
+        east:
+          type: number
+        north:
+          type: number
+        height:
+          type: number
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
